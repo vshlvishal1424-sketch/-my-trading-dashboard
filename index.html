@@ -1,280 +1,369 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#f5f7fb">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#111111">
 <title>AI Trading Lab</title>
 <style>
-:root{--bg:#f4f6fb;--card:rgba(255,255,255,.78);--text:#171923;--muted:#737b8c;--line:rgba(120,130,150,.18);--blue:#3478f6;--green:#16a36a;--red:#e34e5c;--shadow:0 12px 35px #24304b12}
-.dark{--bg:#10131c;--card:rgba(30,35,48,.82);--text:#f5f7ff;--muted:#a1a9ba;--line:#ffffff18;--blue:#77a7ff;--green:#45d69a;--red:#ff7580;--shadow:0 12px 35px #0005}
+:root{--bg:#111;--panel:#1d1d1d;--panel2:#252525;--text:#f3f5f5;--muted:#92999a;--line:#303030;--green:#24ce70;--red:#fa596a;--lime:#62ef32}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font:15px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;transition:.2s}
-.app{max-width:1120px;margin:auto;padding:20px}
-header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap}
-h1{font-size:25px;margin:0}h2{font-size:17px;margin:0 0 15px}
-.muted,small{color:var(--muted)}
-.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;box-shadow:var(--shadow);backdrop-filter:blur(18px);margin-bottom:15px}
-.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
-.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.metric{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:13px;min-width:0}
-.metric small{display:block;margin-bottom:8px}
-.metric b{font-size:19px;overflow-wrap:anywhere}
-.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-button,select{border:1px solid var(--line);border-radius:12px;padding:11px 14px;background:var(--card);color:var(--text);font:inherit}
-button{cursor:pointer;font-weight:650}
-button.primary{background:var(--blue);color:white;border:0}
-button.good{background:var(--green);color:white;border:0}
-button.danger{background:var(--red);color:white;border:0}
-button:disabled{opacity:.45;cursor:not-allowed}
-.status{padding:12px;border-radius:12px;background:var(--bg);color:var(--muted);margin-top:12px}
-.signal{font-size:25px;font-weight:750}
-.green{color:var(--green)}.red{color:var(--red)}
-table{width:100%;border-collapse:collapse;font-size:13px}
-th,td{text-align:left;padding:11px 7px;border-bottom:1px solid var(--line)}
-.tablewrap{overflow-x:auto}
-canvas{width:100%;height:220px}
-footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
-@media(max-width:650px){.app{padding:13px}.grid{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}h1{font-size:21px}}
+body{margin:0;background:#080808;color:var(--text);font-family:Arial,Helvetica,sans-serif}
+button,input,select{font:inherit}
+button{cursor:pointer;color:inherit}
+.app{max-width:700px;min-height:100vh;margin:auto;background:var(--bg);padding-bottom:85px}
+.page{display:none;padding:20px 18px}
+.page.active{display:block}
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+.brand{font-size:20px;font-weight:800}
+.demo{color:#ffad50;font-size:13px;font-weight:bold}
+.balance{font-size:37px;text-align:center;margin:8px 0 22px;letter-spacing:-1px}
+.small{font-size:12px;color:var(--muted)}
+.row{display:flex;align-items:center;gap:10px}
+.between{justify-content:space-between}
+.btn{border:0;border-radius:14px;background:var(--panel2);padding:14px 16px;font-weight:700}
+.btn.green{background:var(--green);color:#06160c}
+.btn.red{background:var(--red);color:#fff}
+.btn.full{width:100%}
+.btn.outline{border:1px solid var(--line);background:transparent}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:17px;margin-bottom:15px}
+h1{font-size:27px;margin:8px 0 20px}
+h2{font-size:19px;margin:0 0 15px}
+h3{font-size:16px;margin:0 0 8px}
+.muted{color:var(--muted)}
+.section-title{font-size:20px;font-weight:750;margin:26px 0 15px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:var(--panel2);padding:14px;border-radius:14px;min-width:0}
+.stat b{display:block;font-size:19px;margin-top:8px;overflow-wrap:anywhere}
+.pill{border-radius:30px;background:#303030;padding:7px 12px;font-size:12px;color:#bbb}
+.greenText{color:var(--green)}.redText{color:var(--red)}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:700px;height:76px;background:#151515;border-top:1px solid #333;display:grid;grid-template-columns:repeat(5,1fr);z-index:10;padding-bottom:env(safe-area-inset-bottom)}
+.nav button{border:0;background:none;color:#858585;font-size:11px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
+.nav button.active{color:#fff}
+.nav .ico{font-size:24px;line-height:25px}
+.tabs{display:flex;gap:7px;overflow:auto;margin:15px 0}
+.tabs button{border:0;background:transparent;color:var(--muted);padding:10px 12px;white-space:nowrap}
+.tabs button.selected{color:white;border-bottom:2px solid var(--green)}
+.asset{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+.coin{width:38px;height:38px;border-radius:12px;background:#303030;display:grid;place-items:center;font-size:19px}
+.asset .info{flex:1}
+.chartbox{background:#151515;border-radius:14px;overflow:hidden;padding:5px}
+canvas{display:block;width:100%;height:290px}
+.chart-tools{display:flex;gap:8px;overflow:auto;margin:12px 0}
+.chart-tools button{border:0;background:#292929;border-radius:9px;padding:8px 12px;color:#bbb}
+.chart-tools button.selected{background:#424242;color:white}
+.trade-panel{background:#1c1c1c;border:1px solid #303030;border-radius:20px;padding:14px;margin-top:14px}
+.buySell{display:grid;grid-template-columns:1fr 1fr;background:#292929;border-radius:14px;padding:4px;gap:4px}
+.buySell button{border:0;background:transparent;padding:12px;border-radius:12px;color:#aaa}
+.buySell button.selected.buy{background:var(--green);color:#07170c}
+.buySell button.selected.sell{background:var(--red);color:white}
+.field{background:#282828;border:1px solid #3a3a3a;border-radius:13px;padding:12px;min-width:0}
+.field label{display:block;color:var(--muted);font-size:12px;margin-bottom:8px}
+.field input,.field select{width:100%;background:transparent;border:0;outline:0;color:white;font-size:17px}
+.field select option{background:#222}
+.trade-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:13px 0}
+.trade-result{font-size:13px;color:var(--muted);margin:10px 0 0}
+.listrow{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--line);gap:10px}
+.empty{text-align:center;color:var(--muted);padding:35px 10px}
+.tag{font-size:11px;border-radius:20px;padding:5px 8px;background:#303030}
+.tag.green{color:var(--green)}.tag.red{color:var(--red)}
+.chat-area{height:calc(100dvh - 230px);min-height:300px;overflow-y:auto;padding:5px 0}
+.message{max-width:88%;padding:12px 14px;border-radius:16px;margin:10px 0;line-height:1.45;font-size:14px;white-space:pre-wrap}
+.message.bot{background:#262626;border:1px solid #353535}
+.message.user{background:#176b43;margin-left:auto}
+.chat-compose{display:flex;gap:8px;position:sticky;bottom:78px;background:var(--bg);padding:10px 0}
+.chat-compose input{flex:1;min-width:0;background:#272727;border:1px solid #393939;border-radius:25px;padding:13px;color:white;outline:0}
+.chat-compose button{width:48px;border:0;border-radius:50%;background:var(--green);color:#07170c;font-size:20px}
+.chat-language{background:#252525;color:white;border:1px solid #444;border-radius:10px;padding:9px}
+.notice{font-size:12px;line-height:1.5;color:var(--muted)}
+@media(min-width:600px){.page{padding:25px}.chat-area{height:520px}}
 </style>
 </head>
 <body>
 <div class="app">
-<header>
-  <div><small>PERSONAL RESEARCH TERMINAL</small><h1>🤖 AI Trading Lab</h1></div>
-  <div class="controls">
-    <select id="language" aria-label="Language">
-      <option value="en">English</option><option value="ta">தமிழ்</option>
-      <option value="tl">Tanglish</option><option value="hi">हिन्दी</option>
-      <option value="te">తెలుగు</option>
-    </select>
-    <button id="themeBtn">🌙 / ☀️</button>
+
+<!-- HOME -->
+<section class="page active" id="home">
+ <div class="top">
+  <div><div class="brand">✦ AI Trading Lab</div><div class="small">Personal trading terminal</div></div>
+  <span class="pill">DEMO ACCOUNT</span>
+ </div>
+ <div class="demo" style="text-align:center">VIRTUAL BALANCE</div>
+ <div class="balance" id="homeBalance">$10,000.00</div>
+ <div class="grid2">
+  <div class="stat"><span class="small">Available cash</span><b id="homeCash">$10,000</b></div>
+  <div class="stat"><span class="small">Total P&L</span><b id="homePnl">$0.00</b></div>
+ </div>
+ <div class="row" style="margin-top:13px">
+  <button class="btn full" onclick="showPage('trades')">My trades</button>
+  <button class="btn green full" onclick="showPage('terminal')">Open terminal</button>
+ </div>
+ <div class="section-title">Market overview</div>
+ <div class="card">
+  <div class="listrow"><div class="row"><div class="coin">₿</div><div><b>Bitcoin</b><div class="small">BTC / USDT</div></div></div><b id="btcPrice">Loading...</b></div>
+  <div class="listrow"><div class="row"><div class="coin">Ξ</div><div><b>Ethereum</b><div class="small">ETH / USDT</div></div></div><b id="ethPrice">Loading...</b></div>
+  <div class="listrow"><div class="row"><div class="coin">◎</div><div><b>Solana</b><div class="small">SOL / USDT</div></div></div><b id="solPrice">Loading...</b></div>
+  <div class="small" id="marketUpdate">Public market prices</div>
+ </div>
+ <div class="section-title">AI Signal Scanner</div>
+ <div class="card">
+  <div class="row between"><b>Market analysis</b><span class="tag" id="homeSignal">WAIT</span></div>
+  <p class="muted" id="homeSignalReason">Open terminal and analyze a market.</p>
+  <button class="btn full" onclick="showPage('terminal')">Explore terminal →</button>
+ </div>
+ <div class="card"><h3>Risk reminder</h3><p class="notice">Practice with virtual funds. Signals are educational and do not guarantee future market direction or profits.</p></div>
+</section>
+
+<!-- TRADES -->
+<section class="page" id="trades">
+ <div class="top"><div class="brand">My Trades</div><span class="pill">PAPER ACCOUNT</span></div>
+ <div class="grid2">
+  <div class="stat"><span class="small">Open trades</span><b id="tradeCount">0</b></div>
+  <div class="stat"><span class="small">Realized P&L</span><b id="tradePnl">$0.00</b></div>
+ </div>
+ <div class="tabs"><button class="selected" onclick="tradeTab('open',this)">Open</button><button onclick="tradeTab('history',this)">History</button></div>
+ <div id="openTrades"><div class="empty">No active paper trades</div></div>
+ <div id="tradeHistory" style="display:none"><div class="empty">No completed trades</div></div>
+</section>
+
+<!-- TERMINAL -->
+<section class="page" id="terminal">
+ <div class="top">
+  <div><div class="demo">DEMO ACCOUNT</div><div style="font-size:22px;font-weight:bold" id="terminalBalance">$10,000.00</div></div>
+  <span class="pill">● Market</span>
+ </div>
+ <div class="tabs" id="marketTabs">
+  <button class="selected" onclick="selectMarket('crypto',this)">Crypto</button>
+  <button onclick="selectMarket('stocks',this)">Stocks</button>
+  <button onclick="selectMarket('forex',this)">Forex</button>
+ </div>
+ <div class="row between">
+  <div class="row"><div class="coin" id="assetIcon">₿</div><div><b id="assetName">Bitcoin</b><div class="small" id="assetPair">BTC / USDT</div></div></div>
+  <div style="text-align:right"><b id="terminalPrice">Loading...</b><div class="small" id="priceStatus">Market data</div></div>
+ </div>
+ <div class="row" style="margin-top:12px">
+  <select id="assetSelect" class="chat-language" style="flex:1" onchange="changeAsset()">
+   <option value="BTCUSDT">Bitcoin · BTC</option><option value="ETHUSDT">Ethereum · ETH</option>
+   <option value="BNBUSDT">BNB</option><option value="SOLUSDT">Solana</option>
+   <option value="XRPUSDT">XRP</option><option value="ADAUSDT">Cardano</option>
+  </select>
+  <button class="btn outline" onclick="loadChart()">↻ Refresh</button>
+ </div>
+ <div class="chart-tools">
+  <button class="selected" onclick="setIntervalValue('1m',this)">1m</button>
+  <button onclick="setIntervalValue('5m',this)">5m</button>
+  <button onclick="setIntervalValue('15m',this)">15m</button>
+  <button onclick="setIntervalValue('1h',this)">1H</button>
+  <button onclick="setIntervalValue('4h',this)">4H</button>
+  <button onclick="setIntervalValue('1d',this)">1D</button>
+ </div>
+ <div class="chartbox"><canvas id="priceChart" width="900" height="390"></canvas></div>
+ <div class="row between" style="margin-top:10px">
+  <span class="small">Technical analysis</span><span class="tag" id="terminalSignal">WAIT</span>
+ </div>
+ <div class="grid2" style="margin-top:10px">
+  <div class="stat"><span class="small">RSI 14</span><b id="rsiValue">—</b></div>
+  <div class="stat"><span class="small">EMA 20</span><b id="emaValue">—</b></div>
+ </div>
+ <div class="trade-panel">
+  <div class="buySell">
+   <button id="buyChoice" class="selected buy" onclick="chooseSide('BUY')">Buy ↗</button>
+   <button id="sellChoice" onclick="chooseSide('SELL')">Sell ↘</button>
   </div>
-</header>
-
-<section class="card">
-  <small id="accountLabel">VIRTUAL ACCOUNT EQUITY</small>
-  <div class="metrics" style="margin-top:12px">
-    <div class="metric"><small>Balance</small><b id="equity">$10,000.00</b></div>
-    <div class="metric"><small>Available cash</small><b id="cash">$10,000.00</b></div>
-    <div class="metric"><small>Open positions</small><b id="openCount">0</b></div>
-    <div class="metric"><small>Realized P&L</small><b id="realized">$0.00</b></div>
+  <div class="trade-fields">
+   <div class="field"><label>Amount (USD)</label><input id="amount" type="number" min="1" max="10000" value="50"></div>
+   <div class="field"><label>Trade duration</label><select id="duration"><option value="1">1 minute</option><option value="5">5 minutes</option><option value="15">15 minutes</option><option value="60">1 hour</option><option value="240">4 hours</option></select></div>
   </div>
+  <button class="btn green full" id="executeTrade" onclick="placeTrade()">BUY · PAPER TRADE</button>
+  <div class="trade-result" id="tradeFeedback">Virtual trade only. No real money is used.</div>
+ </div>
+ <div class="card" style="margin-top:15px">
+  <div class="row between"><b>AI analysis</b><button class="btn outline" onclick="analyzeMarket()">Analyze</button></div>
+  <p class="muted" id="analysisText">Press Analyze to inspect the selected market.</p>
+ </div>
 </section>
 
-<div class="grid">
-<section class="card">
-<h2 id="marketTitle">Market & Strategy</h2>
-<div class="controls">
-  <label>Symbol
-    <select id="symbol">
-      <option value="BTCUSDT">BTC / USDT</option>
-      <option value="ETHUSDT">ETH / USDT</option>
-      <option value="BNBUSDT">BNB / USDT</option>
-      <option value="SOLUSDT">SOL / USDT</option>
-      <option value="XRPUSDT">XRP / USDT</option>
-      <option value="ADAUSDT">ADA / USDT</option>
-    </select>
-  </label>
-  <label>Style
-    <select id="style"><option value="15m">Intraday · 15m</option><option value="4h">Swing · 4h</option></select>
-  </label>
-</div>
-<div class="controls" style="margin-top:14px">
-  <button class="primary" id="analyze">Analyze market</button>
-  <button class="good" id="start">Start bot</button>
-  <button id="pause" disabled>Stop bot</button>
-</div>
-<div class="controls" style="margin-top:10px">
-  <button class="good" id="approve" disabled>Approve ONE paper BUY</button>
-  <button class="danger" id="cancel">Cancel approval</button>
-</div>
-<div class="status" id="botStatus">Bot stopped. Analyze the market to begin.</div>
+<!-- MARKET -->
+<section class="page" id="market">
+ <div class="top"><div class="brand">Market</div><span class="pill">Explore</span></div>
+ <h1>Explore assets</h1>
+ <div class="card">
+  <h3>Crypto markets</h3>
+  <div id="marketList"></div>
+ </div>
+ <div class="card">
+  <h3>Indian stocks</h3>
+  <p class="muted">NSE/BSE live data provider is not connected in this GitHub Pages demo.</p>
+  <div class="asset"><div class="coin">R</div><div class="info"><b>Reliance Industries</b><div class="small">NSE · RELIANCE</div></div><span class="tag">CSV needed</span></div>
+  <div class="asset"><div class="coin">T</div><div class="info"><b>TCS</b><div class="small">NSE · TCS</div></div><span class="tag">CSV needed</span></div>
+  <div class="asset"><div class="coin">H</div><div class="info"><b>HDFC Bank</b><div class="small">NSE · HDFCBANK</div></div><span class="tag">CSV needed</span></div>
+ </div>
+ <div class="card">
+  <h3>Strategies</h3>
+  <div class="listrow"><span>EMA trend strategy</span><span class="tag">Trend</span></div>
+  <div class="listrow"><span>RSI momentum strategy</span><span class="tag">Momentum</span></div>
+  <div class="listrow"><span>Breakout confirmation</span><span class="tag">Breakout</span></div>
+  <p class="notice">Strategies are examples for learning, not guaranteed signals.</p>
+ </div>
 </section>
 
-<section class="card">
-<h2>AI decision</h2>
-<div class="signal" id="decision">WAIT</div>
-<p class="muted" id="reason">Waiting for market data.</p>
-<div class="metrics">
- <div class="metric"><small>Last price</small><b id="price">—</b></div>
- <div class="metric"><small>RSI (14)</small><b id="rsi">—</b></div>
- <div class="metric"><small>EMA 20 / 50</small><b id="emas">—</b></div>
- <div class="metric"><small>Volume</small><b id="volume">—</b></div>
-</div>
-</section>
-</div>
-
-<section class="card">
-<h2>Price history</h2>
-<canvas id="chart" width="1000" height="250"></canvas>
-<small class="muted">Candlestick data supplied by Binance public market API.</small>
-</section>
-
-<div class="grid">
-<section class="card">
-<h2>Risk controls</h2>
-<div class="metrics">
- <div class="metric"><small>Risk per trade</small><b>0.5%</b></div>
- <div class="metric"><small>Daily loss limit</small><b>2%</b></div>
- <div class="metric"><small>Max open trades</small><b>3</b></div>
- <div class="metric"><small>Leverage</small><b>None</b></div>
-</div>
-<p class="muted">Position size uses entry-to-stop distance. Stop-loss and take-profit are simulated.</p>
-</section>
-<section class="card">
-<h2>India market data</h2>
-<p class="muted">NSE/BSE live trading is not connected. This demo currently fetches crypto data only. Indian market CSV import and backtesting can be added separately.</p>
-</section>
-</div>
-
-<section class="card">
-<h2>Open positions</h2>
-<div class="tablewrap"><table><thead><tr><th>Symbol</th><th>Entry</th><th>Price</th><th>Stop</th><th>P&L</th></tr></thead><tbody id="positions"><tr><td colspan="5">No open positions</td></tr></tbody></table></div>
+<!-- HELP / CHAT -->
+<section class="page" id="help">
+ <div class="top">
+  <div><div class="brand">✦ AI Trading Assistant</div><div class="small">Your trading learning companion</div></div>
+  <select id="chatLang" class="chat-language" onchange="languageChanged()">
+   <option value="en">English</option><option value="ta">தமிழ்</option>
+   <option value="tl">Tanglish</option><option value="hi">हिन्दी</option>
+   <option value="te">తెలుగు</option>
+  </select>
+ </div>
+ <div class="card" style="padding:12px">
+  <div class="row between"><b>AI Chat</b><button class="btn outline" onclick="clearChat()">New chat</button></div>
+  <div class="small">Ask about trading, charts, indicators and risk management.</div>
+ </div>
+ <div class="chat-area" id="chatMessages">
+  <div class="message bot">Hello! 👋 I'm your AI Trading Assistant. Ask me about candlesticks, RSI, EMA, trading strategies or risk management.</div>
+ </div>
+ <div class="chat-compose">
+  <input id="chatInput" placeholder="Ask your trading question..." onkeydown="if(event.key==='Enter')sendChat()">
+  <button onclick="sendChat()">➤</button>
+ </div>
+ <p class="notice">This is an offline educational assistant with built-in responses. It is not connected to a live AI service.</p>
 </section>
 
-<section class="card">
-<h2>Trade history</h2>
-<div class="tablewrap"><table><thead><tr><th>Symbol</th><th>Entry</th><th>Exit</th><th>P&L</th><th>Result</th></tr></thead><tbody id="history"><tr><td colspan="5">No completed trades</td></tr></tbody></table></div>
-</section>
-<footer>AI Trading Lab · Paper trading only · No real money or broker connection</footer>
+<nav class="nav">
+ <button class="active" data-page="home" onclick="showPage('home')"><span class="ico">⌂</span>Home</button>
+ <button data-page="trades" onclick="showPage('trades')"><span class="ico">↕</span>Trades</button>
+ <button data-page="terminal" onclick="showPage('terminal')"><span class="ico">▧</span>Terminal</button>
+ <button data-page="market" onclick="showPage('market')"><span class="ico">▱</span>Market</button>
+ <button data-page="help" onclick="showPage('help')"><span class="ico">ⓘ</span>Help</button>
+</nav>
 </div>
 
 <script>
 const $=id=>document.getElementById(id);
-let cash=10000,realized=0,positions=[],history=[];
-let running=false,approval=false,lastData=null,timer=null,dayStart=10000;
-const translations={
-en:{analyze:"Analyze market",start:"Start bot",stop:"Stop bot",approve:"Approve ONE paper BUY",cancel:"Cancel approval",wait:"WAIT",status:"Bot stopped. Analyze the market to begin."},
-ta:{analyze:"சந்தையை ஆய்வு செய்",start:"Bot தொடங்கு",stop:"Bot நிறுத்து",approve:"ஒரு Paper BUY அனுமதி",cancel:"அனுமதியை ரத்து செய்",wait:"காத்திரு",status:"Bot நிறுத்தப்பட்டுள்ளது. முதலில் சந்தையை ஆய்வு செய்யவும்."},
-tl:{analyze:"Market analyze pannu",start:"Bot start pannu",stop:"Bot stop pannu",approve:"Oru Paper BUY approve pannu",cancel:"Approval cancel pannu",wait:"WAIT",status:"Bot stopped. Mudhal market analyze pannunga."},
-hi:{analyze:"बाज़ार का विश्लेषण",start:"बॉट शुरू करें",stop:"बॉट रोकें",approve:"एक Paper BUY की अनुमति दें",cancel:"अनुमति रद्द करें",wait:"प्रतीक्षा",status:"बॉट बंद है। पहले बाज़ार का विश्लेषण करें।"},
-te:{analyze:"మార్కెట్ విశ్లేషించండి",start:"బాట్ ప్రారంభించండి",stop:"బాట్ ఆపండి",approve:"ఒక Paper BUY అనుమతించండి",cancel:"అనుమతి రద్దు చేయండి",wait:"వేచి ఉండండి",status:"బాట్ ఆగి ఉంది. ముందుగా మార్కెట్‌ను విశ్లేషించండి."}
+let balance=10000,realized=0,openPositions=[],closedTrades=[];
+let symbol='BTCUSDT',interval='1m',side='BUY',candles=[],lastPrice=0;
+let marketType='crypto';
+const assets={
+ BTCUSDT:{name:'Bitcoin',pair:'BTC / USDT',icon:'₿'},
+ ETHUSDT:{name:'Ethereum',pair:'ETH / USDT',icon:'Ξ'},
+ BNBUSDT:{name:'BNB',pair:'BNB / USDT',icon:'◆'},
+ SOLUSDT:{name:'Solana',pair:'SOL / USDT',icon:'◎'},
+ XRPUSDT:{name:'XRP',pair:'XRP / USDT',icon:'✕'},
+ ADAUSDT:{name:'Cardano',pair:'ADA / USDT',icon:'●'}
 };
-function translate(){
- let t=translations[$("language").value];
- $("analyze").textContent=t.analyze;$("start").textContent=t.start;
- $("pause").textContent=t.stop;$("approve").textContent=t.approve;
- $("cancel").textContent=t.cancel;
+function money(n){return '$'+Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function showPage(name){
+ document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+ $(name).classList.add('active');
+ document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===name));
+ if(name==='terminal')loadChart();
+ if(name==='trades')renderTrades();
+ if(name==='market')loadMarketList();
 }
-$("language").onchange=translate;
-$("themeBtn").onclick=()=>document.body.classList.toggle("dark");
-$("symbol").onchange=()=>analyze();
-$("style").onchange=()=>analyze();
-
-function ema(values,period){
- let k=2/(period+1),v=values[0];
- for(let i=1;i<values.length;i++)v=values[i]*k+v*(1-k);
+function updateBalance(){
+ let equity=balance+openPositions.reduce((a,p)=>a+p.amount,0);
+ $('homeBalance').textContent=money(equity);
+ $('homeCash').textContent=money(balance);
+ $('homePnl').textContent=money(realized);
+ $('tradePnl').textContent=money(realized);
+ $('terminalBalance').textContent=money(equity);
+ $('tradeCount').textContent=openPositions.length;
+}
+function chooseSide(s){
+ side=s;
+ $('buyChoice').className=s==='BUY'?'selected buy':'';
+ $('sellChoice').className=s==='SELL'?'selected sell':'';
+ $('executeTrade').textContent=s+' · PAPER TRADE';
+ $('executeTrade').className='btn full '+(s==='BUY'?'green':'red');
+}
+function selectMarket(type,btn){
+ marketType=type;
+ document.querySelectorAll('#marketTabs button').forEach(b=>b.classList.remove('selected'));
+ btn.classList.add('selected');
+ if(type!=='crypto'){
+  $('analysisText').textContent='This demo currently supports live crypto candles. Indian stocks and forex need a separate data feed.';
+  $('priceStatus').textContent='Feed not connected';
+ }else loadChart();
+}
+function changeAsset(){
+ symbol=$('assetSelect').value;
+ loadChart();
+}
+function setIntervalValue(v,btn){
+ interval=v;
+ document.querySelectorAll('.chart-tools button').forEach(b=>b.classList.remove('selected'));
+ btn.classList.add('selected');
+ loadChart();
+}
+async function getCandles(){
+ const url='https://api.binance.com/api/v3/klines?symbol='+symbol+'&interval='+interval+'&limit=90';
+ const r=await fetch(url);
+ if(!r.ok)throw Error('Market feed unavailable');
+ return (await r.json()).map(x=>({open:+x[1],high:+x[2],low:+x[3],close:+x[4],volume:+x[5]}));
+}
+function ema(arr,n){
+ let k=2/(n+1),v=arr[0];
+ for(let i=1;i<arr.length;i++)v=arr[i]*k+v*(1-k);
  return v;
 }
-function rsi(values){
+function calcRSI(arr){
  let gains=0,losses=0;
- for(let i=values.length-15;i<values.length-1;i++){
-  let d=values[i+1]-values[i];if(d>0)gains+=d;else losses-=d;
+ for(let i=arr.length-15;i<arr.length-1;i++){
+  let d=arr[i+1]-arr[i];if(d>0)gains+=d;else losses-=d;
  }
- let avgG=gains/14,avgL=losses/14;
- return avgL===0?100:100-(100/(1+avgG/avgL));
+ if(losses===0)return 100;
+ return 100-100/(1+(gains/14)/(losses/14));
 }
-async function analyze(){
- $("botStatus").textContent="Fetching public market data...";
+function analyzeValues(){
+ const closes=candles.map(x=>x.close);
+ const e20=ema(closes.slice(-60),20),e50=ema(closes,50),rsi=calcRSI(closes);
+ const last=candles.at(-1);
+ const priorHigh=Math.max(...candles.slice(-21,-1).map(x=>x.high));
+ const avgVol=candles.slice(-21,-1).reduce((a,x)=>a+x.volume,0)/20;
+ const breakout=last.close>priorHigh;
+ const volConfirm=last.volume>avgVol;
+ const buy=e20>e50&&rsi>50&&rsi<70&&breakout&&volConfirm;
+ const sell=e20<e50&&rsi<50;
+ return {e20,e50,rsi,signal:buy?'BUY':sell?'SELL':'WAIT',last};
+}
+async function loadChart(){
  try{
-  let symbol=$("symbol").value,interval=$("style").value;
-  let url=`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=100`;
-  let response=await fetch(url);
-  if(!response.ok)throw Error("Market API unavailable");
-  let raw=await response.json();
-  let candles=raw.map(x=>({time:x[0],open:+x[1],high:+x[2],low:+x[3],close:+x[4],volume:+x[5]}));
-  let closes=candles.map(x=>x.close),last=candles.at(-1);
-  let e20=ema(closes.slice(-60),20),e50=ema(closes,50),rv=rsi(closes);
-  let avgVol=candles.slice(-21,-1).reduce((a,x)=>a+x.volume,0)/20;
-  let breakout=last.close>Math.max(...candles.slice(-21,-1).map(x=>x.high));
-  let volOK=last.volume>avgVol;
-  let buy=e20>e50&&rv>50&&rv<70&&breakout&&volOK;
-  let sell=e20<e50||rv>75;
-  let signal=buy?"BUY":sell?"SELL":"WAIT";
-  lastData={symbol,price:last.close,signal,ema20:e20,ema50:e50,rsi:rv,volume:last.volume,candles};
-  $("decision").textContent=signal;
-  $("decision").className="signal "+(buy?"green":sell?"red":"");
-  $("reason").textContent=buy?"Trend + breakout + volume confirmation.":sell?"Bearish trend or RSI warning.":"No complete entry setup.";
-  $("price").textContent=last.close.toLocaleString("en-US",{maximumFractionDigits:4});
-  $("rsi").textContent=rv.toFixed(1);
-  $("emas").textContent=e20.toFixed(2)+" / "+e50.toFixed(2);
-  $("volume").textContent=last.volume.toFixed(2);
-  drawChart(candles);
-  $("botStatus").textContent="Data updated: "+new Date().toLocaleTimeString();
-  managePositions(last.close);
-  if(running&&approval&&buy&&positions.length<3)openPaperTrade(last.close);
-  render();
- }catch(e){$("botStatus").textContent="Data error: "+e.message+". Try again later.";}
+  $('priceStatus').textContent='Updating...';
+  candles=await getCandles();
+  lastPrice=candles.at(-1).close;
+  const a=assets[symbol];
+  $('assetName').textContent=a.name;$('assetPair').textContent=a.pair;
+  $('assetIcon').textContent=a.icon;
+  $('terminalPrice').textContent=lastPrice.toLocaleString('en-US',{maximumFractionDigits:5});
+  $('priceStatus').textContent='Live public data';
+  const stats=analyzeValues();
+  $('rsiValue').textContent=stats.rsi.toFixed(1);
+  $('emaValue').textContent=stats.e20.toFixed(3);
+  $('terminalSignal').textContent=stats.signal;
+  $('homeSignal').textContent=stats.signal;
+  $('homeSignalReason').textContent=stats.signal==='BUY'?'Bullish conditions detected. Check the setup before trading.':stats.signal==='SELL'?'Bearish conditions detected.':'No complete entry setup detected.';
+  drawChart();
+  updateOpenPrices();
+ }catch(e){
+  $('priceStatus').textContent='Unable to load data';
+  $('analysisText').textContent=e.message+'. Check internet and try again.';
+ }
 }
-function drawChart(candles){
- let c=$("chart"),ctx=c.getContext("2d"),w=c.width,h=c.height;
+function drawChart(){
+ const c=$('priceChart'),ctx=c.getContext('2d'),w=c.width,h=c.height;
  ctx.clearRect(0,0,w,h);
- let data=candles.slice(-50),min=Math.min(...data.map(x=>x.low)),max=Math.max(...data.map(x=>x.high));
- let scale=(h-20)/(max-min||1);
+ if(!candles.length)return;
+ let data=candles.slice(-65),min=Math.min(...data.map(x=>x.low)),max=Math.max(...data.map(x=>x.high));
+ let pad=15,scale=(h-pad*2)/(max-min||1);
+ ctx.strokeStyle='#303030';ctx.lineWidth=1;
+ for(let j=1;j<5;j++){let y=j*h/5;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
+ let step=(w-30)/data.length;
  data.forEach((d,i)=>{
-  let x=10+i*(w-20)/data.length,up=d.close>=d.open;
-  ctx.strokeStyle=up?"#16a36a":"#e34e5c";
-  ctx.fillStyle=ctx.strokeStyle;
-  let y1=h-10-(d.high-min)*scale,y2=h-10-(d.low-min)*scale;
-  let yo=h-10-(Math.max(d.open,d.close)-min)*scale;
-  let yc=h-10-(Math.min(d.open,d.close)-min)*scale;
-  ctx.beginPath();ctx.moveTo(x,y1);ctx.lineTo(x,y2);ctx.stroke();
-  ctx.fillRect(x-3,yo,6,Math.max(2,yc-yo));
- });
-}
-function openPaperTrade(price){
- approval=false;$("approve").disabled=true;
- let risk=cash*.005,stop=price*.99,qty=risk/(price-stop);
- let p={symbol:lastData.symbol,entry:price,stop,target:price*1.02,qty,price};
- cash-=price*qty;
- positions.push(p);
- $("botStatus").textContent="Approved paper BUY executed. Approval consumed.";
-}
-function managePositions(price){
- positions.forEach(p=>{
-  if(p.symbol!==lastData.symbol)return;
-  p.price=price;
-  if(price<=p.stop||price>=p.target){
-   let pnl=(price-p.entry)*p.qty;
-   cash+=price*p.qty;realized+=pnl;
-   history.unshift({...p,exit:price,pnl});
-   positions=positions.filter(x=>x!==p);
-  }
- });
-}
-function render(){
- $("cash").textContent="$"+cash.toFixed(2);
- $("equity").textContent="$"+(cash+positions.reduce((a,p)=>a+p.price*p.qty,0)).toFixed(2);
- $("realized").textContent="$"+realized.toFixed(2);
- $("openCount").textContent=positions.length;
- $("positions").innerHTML=positions.length?positions.map(p=>`<tr><td>${p.symbol}</td><td>${p.entry.toFixed(2)}</td><td>${p.price.toFixed(2)}</td><td>${p.stop.toFixed(2)}</td><td>${((p.price-p.entry)*p.qty).toFixed(2)}</td></tr>`).join(""):'<tr><td colspan="5">No open positions</td></tr>';
- $("history").innerHTML=history.length?history.map(p=>`<tr><td>${p.symbol}</td><td>${p.entry.toFixed(2)}</td><td>${p.exit.toFixed(2)}</td><td>${p.pnl.toFixed(2)}</td><td>${p.pnl>=0?"Win":"Loss"}</td></tr>`).join(""):'<tr><td colspan="5">No completed trades</td></tr>';
-}
-$("analyze").onclick=analyze;
-$("start").onclick=()=>{
- running=true;$("start").disabled=true;$("pause").disabled=false;
- $("botStatus").textContent="Bot running in analysis mode. Approve a single BUY when ready.";
- analyze();timer=setInterval(analyze,30000);
-};
-$("pause").onclick=()=>{
- running=false;approval=false;clearInterval(timer);
- $("start").disabled=false;$("pause").disabled=true;$("approve").disabled=true;
- $("botStatus").textContent="Bot stopped. Pending approval cancelled.";
-};
-$("approve").onclick=()=>{
- if(!running){$("botStatus").textContent="Start the bot first.";return;}
- approval=true;$("approve").disabled=true;
- $("botStatus").textContent="One-time BUY approval armed. It will be used only if a BUY signal appears.";
- if(lastData&&lastData.signal==="BUY")openPaperTrade(lastData.price);
-};
-$("cancel").onclick=()=>{
- approval=false;$("approve").disabled=true;
- $("botStatus").textContent="Pending approval cancelled.";
-};
-$("start").disabled=false;
-translate();render();analyze();
-</script>
-</body>
-</html>
+  let x=15+i*step,up=d.close>=d.open;
+  ctx.strokeStyle=up?'#24ce70':'#fa596a';ctx.fillStyle=ctx.strokeStyle;
+  let yH=h-pad-(d.high-min)*scale,yL=h-pad-(d.low-min)*scale;
+  let yO=h-pad-(d.open-min)*scale,yC=h-pad-(d.close-min)*scale;
+  ctx.beginPath();ctx.moveTo(x+step/2,yH);ctx.lineTo(x+step/2,yL);ctx.stroke();
+  ctx.fillRect(x+step*.2,Math.min(yO,yC),Math.max(3,st
