@@ -1,0 +1,300 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Trading Dashboard</title>
+
+<script src="https://s3.tradingview.com/tv.js"></script>
+
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;
+ background:#0b1220;
+ color:white;
+ font-family:Arial,sans-serif;
+}
+header{
+ padding:20px;
+ background:#121c2e;
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+}
+h1{font-size:22px;margin:0}
+header span{color:#55d6a6;font-size:12px}
+nav{
+ display:flex;gap:10px;flex-wrap:wrap;
+ padding:15px;
+}
+button,select{
+ background:#1b2940;
+ color:white;
+ border:1px solid #34445e;
+ padding:12px;
+ border-radius:8px;
+ cursor:pointer;
+}
+button.active{background:#55d6a6;color:#07151a}
+.container{padding:15px}
+.panel{
+ background:#121c2e;
+ padding:15px;
+ border-radius:12px;
+ margin-bottom:15px;
+ border:1px solid #26354d;
+}
+h2{font-size:17px}
+#chart{height:550px}
+#ticker{height:55px}
+#overview{height:400px}
+#watchlist{height:450px}
+#calendar{height:400px}
+.notice{color:#ffcf70;font-size:12px;padding:12px}
+@media(max-width:600px){
+ header{align-items:flex-start;gap:8px;flex-direction:column}
+ #chart{height:450px}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+ <div>
+  <h1>📈 MY TRADING DASHBOARD</h1>
+  <span>STOCKS • CRYPTO • MARKET ANALYSIS</span>
+ </div>
+ <span>● MARKET MONITOR</span>
+</header>
+
+<div class="container">
+
+<div class="panel">
+ <div id="ticker"></div>
+</div>
+
+<nav>
+ <button class="active" onclick="changeMarket('stocks',this)">Indian Stocks</button>
+ <button onclick="changeMarket('crypto',this)">Crypto</button>
+ <button onclick="changeMarket('indices',this)">Indices</button>
+
+ <select id="interval" onchange="loadChart()">
+  <option value="1">1 Minute</option>
+  <option value="5">5 Minutes</option>
+  <option value="15">15 Minutes</option>
+  <option value="60">1 Hour</option>
+  <option value="D" selected>1 Day</option>
+  <option value="W">1 Week</option>
+ </select>
+</nav>
+
+<div class="panel">
+ <h2 id="chartTitle">NIFTY 50 Chart</h2>
+ <div id="chart"></div>
+</div>
+
+<div class="panel">
+ <h2>⭐ Watchlist</h2>
+ <div id="buttons"></div>
+ <div id="watchlist"></div>
+</div>
+
+<div class="panel">
+ <h2>🌎 Market Overview</h2>
+ <div id="overview"></div>
+</div>
+
+<div class="panel">
+ <h2>📅 Economic Calendar</h2>
+ <div id="calendar"></div>
+</div>
+
+<div class="panel">
+ <h2>🔗 Quick Links</h2>
+ <p><a href="https://www.nseindia.com/" target="_blank">NSE India</a></p>
+ <p><a href="https://www.bseindia.com/" target="_blank">BSE India</a></p>
+ <p><a href="https://www.tradingview.com/" target="_blank">TradingView</a></p>
+ <p><a href="https://www.binance.com/" target="_blank">Binance</a></p>
+</div>
+
+<div class="notice">
+⚠️ This is a personal market monitoring dashboard.
+Market data may be delayed. Verify prices with your broker.
+No actual buy/sell orders are placed by this website.
+</div>
+
+</div>
+
+<script>
+const markets={
+ stocks:[
+  ["NIFTY 50","NSE:NIFTY"],
+  ["RELIANCE","NSE:RELIANCE"],
+  ["HDFC BANK","NSE:HDFCBANK"],
+  ["TCS","NSE:TCS"],
+  ["INFOSYS","NSE:INFY"],
+  ["ICICI BANK","NSE:ICICIBANK"]
+ ],
+ crypto:[
+  ["BITCOIN","BINANCE:BTCUSDT"],
+  ["ETHEREUM","BINANCE:ETHUSDT"],
+  ["BNB","BINANCE:BNBUSDT"],
+  ["SOLANA","BINANCE:SOLUSDT"],
+  ["XRP","BINANCE:XRPUSDT"]
+ ],
+ indices:[
+  ["NIFTY 50","NSE:NIFTY"],
+  ["BANK NIFTY","NSE:BANKNIFTY"],
+  ["SENSEX","BSE:SENSEX"],
+  ["NIFTY IT","NSE:CNXIT"]
+ ]
+};
+
+let market="stocks";
+let symbol="NSE:NIFTY";
+
+function widget(id,name,config){
+ const el=document.getElementById(id);
+ el.innerHTML="";
+ const holder=document.createElement("div");
+ holder.style.height="100%";
+ holder.style.width="100%";
+ const inner=document.createElement("div");
+ inner.className="tradingview-widget-container__widget";
+ inner.style.height="100%";
+ holder.appendChild(inner);
+ const s=document.createElement("script");
+ s.src="https://s3.tradingview.com/external-embedding/embed-widget-"+name+".js";
+ s.async=true;
+ s.innerHTML=JSON.stringify(config);
+ holder.appendChild(s);
+ el.appendChild(holder);
+}
+
+function loadChart(){
+ document.getElementById("chartTitle").innerText=
+ [...markets.stocks,...markets.crypto,...markets.indices]
+ .find(x=>x[1]===symbol)?.[0]+" Chart";
+
+ widget("chart","advanced-chart",{
+  autosize:true,
+  symbol:symbol,
+  interval:document.getElementById("interval").value,
+  timezone:"Asia/Kolkata",
+  theme:"dark",
+  style:"1",
+  locale:"en",
+  allow_symbol_change:true,
+  withdateranges:true,
+  support_host:"https://www.tradingview.com"
+ });
+}
+
+function loadButtons(){
+ const el=document.getElementById("buttons");
+ el.innerHTML="";
+ markets[market].forEach(item=>{
+  const b=document.createElement("button");
+  b.innerText=item[0];
+  b.style.margin="4px";
+  b.onclick=()=>{
+   symbol=item[1];
+   loadChart();
+   loadButtons();
+  };
+  if(symbol===item[1]){
+   b.classList.add("active");
+  }
+  el.appendChild(b);
+ });
+}
+
+function changeMarket(type,btn){
+ market=type;
+ symbol=markets[type][0][1];
+ document.querySelectorAll("nav button")
+ .forEach(b=>b.classList.remove("active"));
+ btn.classList.add("active");
+ loadChart();
+ loadButtons();
+ loadWatchlist();
+}
+
+function loadWatchlist(){
+ widget("watchlist","market-quotes",{
+  width:"100%",
+  height:"100%",
+  symbolsGroups:[{
+   name:"My Watchlist",
+   symbols:markets[market].map(x=>({
+    name:x[1],
+    displayName:x[0]
+   }))
+  }],
+  showSymbolLogo:true,
+  colorTheme:"dark",
+  isTransparent:true,
+  locale:"en"
+ });
+}
+
+widget("ticker","ticker-tape",{
+ symbols:[
+  {proName:"NSE:NIFTY",title:"NIFTY"},
+  {proName:"BSE:SENSEX",title:"SENSEX"},
+  {proName:"BINANCE:BTCUSDT",title:"BITCOIN"},
+  {proName:"BINANCE:ETHUSDT",title:"ETH"},
+  {proName:"NSE:RELIANCE",title:"RELIANCE"}
+ ],
+ showSymbolLogo:true,
+ colorTheme:"dark",
+ isTransparent:true,
+ displayMode:"adaptive",
+ locale:"en"
+});
+
+widget("overview","market-overview",{
+ colorTheme:"dark",
+ dateRange:"12M",
+ showChart:true,
+ locale:"en",
+ isTransparent:true,
+ width:"100%",
+ height:"100%",
+ tabs:[
+  {title:"Indices",symbols:[
+   {s:"NSE:NIFTY",d:"NIFTY 50"},
+   {s:"BSE:SENSEX",d:"SENSEX"},
+   {s:"NSE:BANKNIFTY",d:"BANK NIFTY"}
+  ]},
+  {title:"Stocks",symbols:[
+   {s:"NSE:RELIANCE",d:"RELIANCE"},
+   {s:"NSE:TCS",d:"TCS"}
+  ]},
+  {title:"Crypto",symbols:[
+   {s:"BINANCE:BTCUSDT",d:"BITCOIN"},
+   {s:"BINANCE:ETHUSDT",d:"ETHEREUM"}
+  ]}
+ ]
+});
+
+widget("calendar","economic-calendar",{
+ colorTheme:"dark",
+ isTransparent:true,
+ width:"100%",
+ height:"100%",
+ locale:"en",
+ importanceFilter:"-1,0,1",
+ countryFilter:"in,us"
+});
+
+loadChart();
+loadButtons();
+loadWatchlist();
+</script>
+
+</body>
+</html>
