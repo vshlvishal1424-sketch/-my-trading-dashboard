@@ -4,127 +4,192 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>My Trading Dashboard</title>
-
-<script src="https://s3.tradingview.com/tv.js"></script>
+<meta name="theme-color" content="#f5f5f7">
+<title>My Trading | Markets</title>
 
 <style>
 *{box-sizing:border-box}
 body{
  margin:0;
- background:#0b1220;
- color:white;
- font-family:Arial,sans-serif;
+ background:#f5f5f7;
+ color:#1d1d1f;
+ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
 }
+button{font:inherit;cursor:pointer}
+.app{max-width:1250px;margin:auto;padding:22px}
 header{
- padding:20px;
- background:#121c2e;
- display:flex;
- justify-content:space-between;
- align-items:center;
+ display:flex;justify-content:space-between;
+ align-items:center;padding:12px 2px 25px;
 }
-h1{font-size:22px;margin:0}
-header span{color:#55d6a6;font-size:12px}
-nav{
- display:flex;gap:10px;flex-wrap:wrap;
- padding:15px;
+.brand{font-size:13px;color:#86868b}
+.brand h1{font-size:25px;color:#1d1d1f;margin:3px 0}
+.status{
+ background:#e7f7ed;color:#16834b;
+ border-radius:30px;padding:8px 12px;font-size:12px;
 }
-button,select{
- background:#1b2940;
- color:white;
- border:1px solid #34445e;
- padding:12px;
- border-radius:8px;
- cursor:pointer;
+h2{font-size:19px;margin:0 0 15px}
+h3{font-size:15px;margin:0 0 8px}
+.muted{color:#86868b;font-size:12px}
+.card{
+ background:white;border-radius:20px;
+ padding:20px;margin-bottom:18px;
+ box-shadow:0 2px 12px rgba(0,0,0,.035);
 }
-button.active{background:#55d6a6;color:#07151a}
-.container{padding:15px}
-.panel{
- background:#121c2e;
- padding:15px;
- border-radius:12px;
- margin-bottom:15px;
- border:1px solid #26354d;
+.ticker-card{padding:5px 10px;overflow:hidden}
+#ticker{height:65px;overflow:hidden}
+.market-tabs{
+ display:flex;gap:9px;overflow-x:auto;
+ padding:5px 0 17px;
+ scrollbar-width:none;
 }
-h2{font-size:17px}
-#chart{height:550px}
-#ticker{height:55px}
-#overview{height:400px}
-#watchlist{height:450px}
-#calendar{height:400px}
-.notice{color:#ffcf70;font-size:12px;padding:12px}
-@media(max-width:600px){
- header{align-items:flex-start;gap:8px;flex-direction:column}
- #chart{height:450px}
+.market-tabs button{
+ border:0;background:#e8e8ed;color:#333;
+ border-radius:30px;padding:11px 19px;
+ white-space:nowrap;font-size:14px;
+}
+.market-tabs button.active{
+ background:#1d1d1f;color:white;
+}
+.chart-header{
+ display:flex;justify-content:space-between;
+ align-items:center;gap:10px;margin-bottom:15px;
+}
+select{
+ border:1px solid #e5e5e7;
+ background:#f5f5f7;border-radius:10px;
+ padding:9px;color:#333;
+}
+#chart{width:100%;height:460px;overflow:hidden}
+#chart .tradingview-widget-container,
+#chart .tradingview-widget-container__widget{
+ width:100%;height:100%;
+}
+.watch-grid{
+ display:grid;
+ grid-template-columns:repeat(3,1fr);
+ gap:10px;
+}
+.stock{
+ border:1px solid #ededf0;
+ border-radius:14px;padding:13px;
+ background:#fff;text-align:left;
+ min-width:0;
+}
+.stock.selected{border:1.5px solid #1684e8;background:#f1f7ff}
+.stock strong{display:block;font-size:13px}
+.stock small{color:#86868b;font-size:11px}
+#overview{height:390px;overflow:hidden}
+#calendar{height:390px;overflow:hidden}
+.links{
+ display:grid;grid-template-columns:repeat(4,1fr);gap:10px;
+}
+.links a{
+ text-decoration:none;color:#1674d1;
+ background:#f5f5f7;border-radius:12px;
+ text-align:center;padding:15px 5px;font-size:13px;
+}
+.notice{
+ font-size:12px;color:#86868b;
+ line-height:1.6;padding:10px 3px 25px;
+}
+footer{text-align:center;color:#999;font-size:11px;padding:10px}
+@media(max-width:650px){
+ .app{padding:13px}
+ header{padding:10px 3px 20px}
+ .brand h1{font-size:22px}
+ .card{padding:15px;border-radius:17px}
+ #chart{height:420px}
+ .watch-grid{grid-template-columns:repeat(2,1fr)}
+ .links{grid-template-columns:repeat(2,1fr)}
+ #overview,#calendar{height:350px}
 }
 </style>
 </head>
 
 <body>
+<div class="app">
 
 <header>
- <div>
-  <h1>📈 MY TRADING DASHBOARD</h1>
-  <span>STOCKS • CRYPTO • MARKET ANALYSIS</span>
+ <div class="brand">
+  PERSONAL MARKET TERMINAL
+  <h1>My Trading <span>📈</span></h1>
+  Stocks · Crypto · Indices
  </div>
- <span>● MARKET MONITOR</span>
+ <div class="status">● Market Monitor</div>
 </header>
 
-<div class="container">
-
-<div class="panel">
+<!-- 1. MARKET TICKER -->
+<div class="card ticker-card">
  <div id="ticker"></div>
 </div>
 
-<nav>
- <button class="active" onclick="changeMarket('stocks',this)">Indian Stocks</button>
- <button onclick="changeMarket('crypto',this)">Crypto</button>
- <button onclick="changeMarket('indices',this)">Indices</button>
+<!-- 2. MARKET SELECTOR -->
+<div class="market-tabs">
+ <button class="active" data-market="stocks">Indian Stocks</button>
+ <button data-market="crypto">Crypto</button>
+ <button data-market="indices">Indices</button>
+</div>
 
- <select id="interval" onchange="loadChart()">
-  <option value="1">1 Minute</option>
-  <option value="5">5 Minutes</option>
-  <option value="15">15 Minutes</option>
-  <option value="60">1 Hour</option>
-  <option value="D" selected>1 Day</option>
-  <option value="W">1 Week</option>
- </select>
-</nav>
-
-<div class="panel">
- <h2 id="chartTitle">NIFTY 50 Chart</h2>
+<!-- 3. MAIN CHART -->
+<div class="card">
+ <div class="chart-header">
+  <div>
+   <h2 id="chartTitle">NIFTY 50</h2>
+   <div class="muted">Interactive Market Chart</div>
+  </div>
+  <select id="interval">
+   <option value="1">1m</option>
+   <option value="5">5m</option>
+   <option value="15">15m</option>
+   <option value="60">1H</option>
+   <option value="D" selected>1D</option>
+   <option value="W">1W</option>
+   <option value="M">1M</option>
+  </select>
+ </div>
  <div id="chart"></div>
 </div>
 
-<div class="panel">
+<!-- 4. WATCHLIST -->
+<div class="card">
  <h2>⭐ Watchlist</h2>
- <div id="buttons"></div>
- <div id="watchlist"></div>
+ <p class="muted">Select a symbol to view its chart</p>
+ <div class="watch-grid" id="watchlist"></div>
 </div>
 
-<div class="panel">
- <h2>🌎 Market Overview</h2>
+<!-- 5. MARKET OVERVIEW -->
+<div class="card">
+ <h2>Market Overview</h2>
+ <p class="muted">Stocks · Indices · Cryptocurrency</p>
  <div id="overview"></div>
 </div>
 
-<div class="panel">
- <h2>📅 Economic Calendar</h2>
+<!-- 6. ECONOMIC CALENDAR -->
+<div class="card">
+ <h2>Economic Calendar</h2>
+ <p class="muted">Upcoming market events</p>
  <div id="calendar"></div>
 </div>
 
-<div class="panel">
- <h2>🔗 Quick Links</h2>
- <p><a href="https://www.nseindia.com/" target="_blank">NSE India</a></p>
- <p><a href="https://www.bseindia.com/" target="_blank">BSE India</a></p>
- <p><a href="https://www.tradingview.com/" target="_blank">TradingView</a></p>
- <p><a href="https://www.binance.com/" target="_blank">Binance</a></p>
+<!-- 7. QUICK LINKS -->
+<div class="card">
+ <h2>Quick Links</h2>
+ <div class="links">
+  <a href="https://www.nseindia.com/" target="_blank">NSE India ↗</a>
+  <a href="https://www.bseindia.com/" target="_blank">BSE India ↗</a>
+  <a href="https://www.tradingview.com/" target="_blank">TradingView ↗</a>
+  <a href="https://www.binance.com/" target="_blank">Binance ↗</a>
+ </div>
 </div>
 
 <div class="notice">
-⚠️ This is a personal market monitoring dashboard.
-Market data may be delayed. Verify prices with your broker.
-No actual buy/sell orders are placed by this website.
+ Market data is supplied through third-party TradingView widgets.
+Prices may be delayed or unavailable depending on the data provider.
+This website is for personal market monitoring only. It does not execute
+trades or provide guaranteed investment recommendations.
 </div>
+
+<footer>MY TRADING · PERSONAL DASHBOARD</footer>
 
 </div>
 
@@ -155,92 +220,92 @@ const markets={
 
 let market="stocks";
 let symbol="NSE:NIFTY";
+let interval="D";
 
 function widget(id,name,config){
  const el=document.getElementById(id);
  el.innerHTML="";
+
  const holder=document.createElement("div");
- holder.style.height="100%";
+ holder.className="tradingview-widget-container";
  holder.style.width="100%";
+ holder.style.height="100%";
+
  const inner=document.createElement("div");
  inner.className="tradingview-widget-container__widget";
+ inner.style.width="100%";
  inner.style.height="100%";
  holder.appendChild(inner);
- const s=document.createElement("script");
- s.src="https://s3.tradingview.com/external-embedding/embed-widget-"+name+".js";
- s.async=true;
- s.innerHTML=JSON.stringify(config);
- holder.appendChild(s);
+
+ const script=document.createElement("script");
+ script.src="https://s3.tradingview.com/external-embedding/embed-widget-"+name+".js";
+ script.async=true;
+ script.innerHTML=JSON.stringify(config);
+
+ holder.appendChild(script);
  el.appendChild(holder);
 }
 
 function loadChart(){
- document.getElementById("chartTitle").innerText=
- [...markets.stocks,...markets.crypto,...markets.indices]
- .find(x=>x[1]===symbol)?.[0]+" Chart";
+ const item=markets[market].find(x=>x[1]===symbol);
+ document.getElementById("chartTitle").textContent=
+ item ? item[0] : symbol;
 
  widget("chart","advanced-chart",{
   autosize:true,
   symbol:symbol,
-  interval:document.getElementById("interval").value,
+  interval:interval,
   timezone:"Asia/Kolkata",
-  theme:"dark",
+  theme:"light",
   style:"1",
   locale:"en",
   allow_symbol_change:true,
   withdateranges:true,
+  details:true,
+  hotlist:true,
+  calendar:false,
   support_host:"https://www.tradingview.com"
  });
+
+ renderWatchlist();
 }
 
-function loadButtons(){
- const el=document.getElementById("buttons");
+function renderWatchlist(){
+ const el=document.getElementById("watchlist");
  el.innerHTML="";
+
  markets[market].forEach(item=>{
   const b=document.createElement("button");
-  b.innerText=item[0];
-  b.style.margin="4px";
+  b.className="stock"+(item[1]===symbol?" selected":"");
+  b.innerHTML="<strong>"+item[0]+"</strong><small>"+item[1]+"</small>";
+
   b.onclick=()=>{
    symbol=item[1];
    loadChart();
-   loadButtons();
   };
-  if(symbol===item[1]){
-   b.classList.add("active");
-  }
   el.appendChild(b);
  });
 }
 
-function changeMarket(type,btn){
- market=type;
- symbol=markets[type][0][1];
- document.querySelectorAll("nav button")
- .forEach(b=>b.classList.remove("active"));
- btn.classList.add("active");
+document.querySelectorAll("[data-market]").forEach(button=>{
+ button.onclick=()=>{
+  market=button.dataset.market;
+  symbol=markets[market][0][1];
+
+  document.querySelectorAll("[data-market]")
+   .forEach(b=>b.classList.remove("active"));
+
+  button.classList.add("active");
+  loadChart();
+ };
+});
+
+document.getElementById("interval").onchange=e=>{
+ interval=e.target.value;
  loadChart();
- loadButtons();
- loadWatchlist();
-}
+};
 
-function loadWatchlist(){
- widget("watchlist","market-quotes",{
-  width:"100%",
-  height:"100%",
-  symbolsGroups:[{
-   name:"My Watchlist",
-   symbols:markets[market].map(x=>({
-    name:x[1],
-    displayName:x[0]
-   }))
-  }],
-  showSymbolLogo:true,
-  colorTheme:"dark",
-  isTransparent:true,
-  locale:"en"
- });
-}
-
+// MARKET TICKER
 widget("ticker","ticker-tape",{
  symbols:[
   {proName:"NSE:NIFTY",title:"NIFTY"},
@@ -250,14 +315,15 @@ widget("ticker","ticker-tape",{
   {proName:"NSE:RELIANCE",title:"RELIANCE"}
  ],
  showSymbolLogo:true,
- colorTheme:"dark",
+ colorTheme:"light",
  isTransparent:true,
  displayMode:"adaptive",
  locale:"en"
 });
 
+// MARKET OVERVIEW
 widget("overview","market-overview",{
- colorTheme:"dark",
+ colorTheme:"light",
  dateRange:"12M",
  showChart:true,
  locale:"en",
@@ -272,7 +338,8 @@ widget("overview","market-overview",{
   ]},
   {title:"Stocks",symbols:[
    {s:"NSE:RELIANCE",d:"RELIANCE"},
-   {s:"NSE:TCS",d:"TCS"}
+   {s:"NSE:TCS",d:"TCS"},
+   {s:"NSE:HDFCBANK",d:"HDFC BANK"}
   ]},
   {title:"Crypto",symbols:[
    {s:"BINANCE:BTCUSDT",d:"BITCOIN"},
@@ -281,8 +348,9 @@ widget("overview","market-overview",{
  ]
 });
 
+// ECONOMIC CALENDAR
 widget("calendar","economic-calendar",{
- colorTheme:"dark",
+ colorTheme:"light",
  isTransparent:true,
  width:"100%",
  height:"100%",
@@ -292,9 +360,6 @@ widget("calendar","economic-calendar",{
 });
 
 loadChart();
-loadButtons();
-loadWatchlist();
 </script>
-
 </body>
 </html>
