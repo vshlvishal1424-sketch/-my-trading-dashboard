@@ -366,4 +366,242 @@ function drawChart(){
   let yH=h-pad-(d.high-min)*scale,yL=h-pad-(d.low-min)*scale;
   let yO=h-pad-(d.open-min)*scale,yC=h-pad-(d.close-min)*scale;
   ctx.beginPath();ctx.moveTo(x+step/2,yH);ctx.lineTo(x+step/2,yL);ctx.stroke();
-  ctx.fillRect(x+step*.2,Math.min(yO,yC),Math.max(3,st
+  
+ctx.fillRect(x+step*.2,Math.min(yO,yC),Math.max(3,step*.6),Math.max(2,Math.abs(yO-yC)));
+ });
+}
+
+function analyzeMarket(){
+ if(!candles.length){
+  $('analysisText').textContent='Market data not available yet.';
+  return;
+ }
+ let a=analyzeValues();
+ $('analysisText').textContent='Signal: '+a.signal+
+ '. RSI: '+a.rsi.toFixed(1)+
+ '. EMA20: '+a.e20.toFixed(3)+
+ '. EMA50: '+a.e50.toFixed(3)+
+ '. Educational analysis only.';
+}
+
+function placeTrade(){
+ let amount=Number($('amount').value);
+ let duration=Number($('duration').value);
+
+ if(!lastPrice||!candles.length){
+  $('tradeFeedback').textContent='Wait for market data to load.';
+  return;
+ }
+ if(!Number.isFinite(amount)||amount<=0||amount>balance){
+  $('tradeFeedback').textContent='Enter a valid amount within your available cash.';
+  return;
+ }
+ if(openPositions.length>=3){
+  $('tradeFeedback').textContent='Maximum 3 open trades allowed.';
+  return;
+ }
+ if(amount>balance*.05){
+  $('tradeFeedback').textContent='Maximum 5% of available cash per trade.';
+  return;
+ }
+
+ balance-=amount;
+ openPositions.push({
+  id:Date.now(),
+  symbol,
+  side,
+  entry:lastPrice,
+  price:lastPrice,
+  amount,
+  duration,
+  opened:Date.now()
+ });
+
+ $('tradeFeedback').textContent=side+' paper trade opened at '+lastPrice.toFixed(4);
+ updateBalance();
+ renderTrades();
+}
+
+function updateOpenPrices(){
+ openPositions.forEach(p=>{
+  if(p.symbol!==symbol)return;
+  p.price=lastPrice;
+  let elapsed=(Date.now()-p.opened)/60000;
+  if(elapsed>=p.duration)closeTrade(p.id,lastPrice,'Duration ended');
+ });
+ renderTrades();
+ updateBalance();
+}
+
+function closeTrade(id,price,why){
+ const p=openPositions.find(x=>x.id===id);
+ if(!p)return;
+
+ let pct=(price-p.entry)/p.entry*(p.side==='BUY'?1:-1);
+ let pnl=p.amount*pct;
+
+ balance+=p.amount+pnl;
+ realized+=pnl;
+
+ closedTrades.unshift({
+  ...p,exit:price,pnl,why,closed:Date.now()
+ });
+
+ openPositions=openPositions.filter(x=>x.id!==id);
+ renderTrades();
+ updateBalance();
+}
+
+function renderTrades(){
+ $('openTrades').innerHTML=openPositions.length?
+ openPositions.map(p=>{
+  let pnl=(p.price-p.entry)/p.entry*p.amount*(p.side==='BUY'?1:-1);
+  return `<div class="card">
+   <div class="row between"><b>${assets[p.symbol].name} · ${p.side}</b><span class="tag">${p.duration} min</span></div>
+   <div class="listrow"><span>Entry</span><b>${p.entry.toFixed(4)}</b></div>
+   <div class="listrow"><span>Current</span><b>${p.price.toFixed(4)}</b></div>
+   <div class="listrow"><span>P&L</span><b>${money(pnl)}</b></div>
+   <button class="btn full" onclick="closeTrade(${p.id},${p.price},'Manually closed')">Close paper trade</button>
+  </div>`;
+ }).join(''):'<div class="empty">No active paper trades</div>';
+
+ $('tradeHistory').innerHTML=closedTrades.length?
+ closedTrades.map(p=>`<div class="listrow">
+  <div><b>${assets[p.symbol].name} · ${p.side}</b>
+  <div class="small">${new Date(p.closed).toLocaleString()}</div></div>
+  <b>${money(p.pnl)}</b>
+ </div>`).join(''):'<div class="empty">No completed trades</div>';
+}
+
+function tradeTab(which,btn){
+ $('openTrades').style.display=which==='open'?'block':'none';
+ $('tradeHistory').style.display=which==='history'?'block':'none';
+ document.querySelectorAll('#trades .tabs button').forEach(b=>b.classList.remove('selected'));
+ btn.classList.add('selected');
+}
+
+async function refreshHome(){
+ const ids=['BTCUSDT','ETHUSDT','SOLUSDT'];
+ try{
+  let r=await fetch('https://api.binance.com/api/v3/ticker/price?symbols='+encodeURIComponent(JSON.stringify(ids)));
+  if(!r.ok)throw Error('Price feed unavailable');
+  let data=await r.json();
+  data.forEach(x=>{
+   let id=x.symbol==='BTCUSDT'?'btcPrice':x.symbol==='ETHUSDT'?'ethPrice':'solPrice';
+   $(id).textContent='$'+Number(x.price).toLocaleString('en-US',{maximumFractionDigits:3});
+  });
+  $('marketUpdate').textContent='Updated '+new Date().toLocaleTimeString();
+ }catch(e){
+  $('marketUpdate').textContent='Market feed unavailable';
+ }
+}
+
+function loadMarketList(){
+ $('marketList').innerHTML=Object.entries(assets).map(([s,a])=>
+ `<div class="asset" onclick="openAsset('${s}')">
+  <div class="coin">${a.icon}</div>
+  <div class="info"><b>${a.name}</b><div class="small">${a.pair}</div></div>
+  <span>›</span>
+ </div>`).join('');
+}
+
+function openAsset(s){
+ symbol=s;
+ $('assetSelect').value=s;
+ showPage('terminal');
+}
+
+const chatReplies={
+ en:[
+  [/hello|hi|hey/i,'Hello! Ask me about trading.'],
+  [/rsi/i,'RSI measures momentum from 0 to 100. Above 70 is often called overbought and below 30 oversold.'],
+  [/ema/i,'EMA gives more weight to recent prices. EMA 20 and EMA 50 can help study trends.'],
+  [/candle/i,'Candlesticks show Open, High, Low and Close prices.'],
+  [/risk|stop loss/i,'Decide your maximum acceptable loss before opening a trade.'],
+  [/strategy|buy|sell/i,'A strategy should define entry, exit, stop-loss and position size. Test it using virtual trades first.']
+ ],
+ ta:[
+  [/hello|hi|வணக்கம்/i,'வணக்கம்! Trading பற்றி என்ன தெரிஞ்சுக்கணும்?'],
+  [/rsi/i,'RSI market momentum-ஐ 0 முதல் 100 வரை அளக்கும் indicator. 70 மேல் overbought, 30 கீழ் oversold என்று பொதுவாக சொல்வார்கள்.'],
+  [/ema/i,'EMA சமீபத்திய விலைகளுக்கு அதிக முக்கியத்துவம் கொடுக்கும் moving average.'],
+  [/candle/i,'Candlestick-ல் Open, High, Low, Close என்ற நான்கு விலைகள் இருக்கும்.'],
+  [/risk|stop loss/i,'Trade தொடங்கும் முன்பே maximum loss எவ்வளவு என்று முடிவு செய்யுங்கள்.']
+ ],
+ tl:[
+  [/hello|hi|vanakkam/i,'Vanakkam! Trading-la enna therinjukanum?'],
+  [/rsi/i,'RSI market momentum measure pannum. 70 mela overbought, 30 keela oversold-nu solvaanga.'],
+  [/ema/i,'EMA recent prices-ku adhiga weight kudukkum moving average.'],
+  [/candle/i,'Candlestick-la Open, High, Low, Close irukkum.'],
+  [/risk|stop loss/i,'Trade start panna munnadi maximum loss decide pannunga.']
+ ],
+ hi:[
+  [/hello|hi|नमस्ते/i,'नमस्ते! ट्रेडिंग के बारे में क्या सीखना चाहते हैं?'],
+  [/rsi/i,'RSI बाजार की गति को 0 से 100 तक मापता है।'],
+  [/ema/i,'EMA हाल की कीमतों को अधिक महत्व देता है।'],
+  [/risk|stop loss/i,'Trade शुरू करने से पहले अपना अधिकतम जोखिम तय करें।']
+ ],
+ te:[
+  [/hello|hi|నమస్కారం/i,'నమస్కారం! ట్రేడింగ్ గురించి ఏమి తెలుసుకోవాలనుకుంటున్నారు?'],
+  [/rsi/i,'RSI మార్కెట్ momentum ను 0 నుండి 100 వరకు కొలుస్తుంది.'],
+  [/ema/i,'EMA ఇటీవలి ధరలకు ఎక్కువ ప్రాధాన్యత ఇచ్చే moving average.'],
+  [/risk|stop loss/i,'Trade ప్రారంభించే ముందు గరిష్ఠ నష్టాన్ని నిర్ణయించండి.']
+ ]
+};
+
+function languageChanged(){
+ const lang=$('chatLang').value;
+ const placeholders={
+  en:'Ask your trading question...',
+  ta:'உங்கள் கேள்வியை கேளுங்கள்...',
+  tl:'Trading question kelu...',
+  hi:'अपना सवाल पूछें...',
+  te:'మీ ప్రశ్న అడగండి...'
+ };
+ $('chatInput').placeholder=placeholders[lang];
+}
+
+function addMessage(text,type){
+ let div=document.createElement('div');
+ div.className='message '+type;
+ div.textContent=text;
+ $('chatMessages').appendChild(div);
+ $('chatMessages').scrollTop=$('chatMessages').scrollHeight;
+}
+
+function getReply(q){
+ let lang=$('chatLang').value;
+ let entries=chatReplies[lang]||chatReplies.en;
+ for(let [pattern,answer] of entries){
+  if(pattern.test(q))return answer;
+ }
+ const defaults={
+  en:'Ask me about RSI, EMA, candlesticks, strategies or risk management.',
+  ta:'RSI, EMA, Candlestick, Strategy அல்லது Risk Management பற்றி கேளுங்கள்.',
+  tl:'RSI, EMA, Candlestick, Strategy pathi kelunga.',
+  hi:'RSI, EMA, Candlestick और Risk Management के बारे में पूछें।',
+  te:'RSI, EMA, Candlestick మరియు Risk Management గురించి అడగండి.'
+ };
+ return defaults[lang];
+}
+
+function sendChat(){
+ let q=$('chatInput').value.trim();
+ if(!q)return;
+ addMessage(q,'user');
+ $('chatInput').value='';
+ setTimeout(()=>addMessage(getReply(q),'bot'),250);
+}
+
+function clearChat(){
+ $('chatMessages').innerHTML='';
+ addMessage('New chat started. What would you like to learn?','bot');
+}
+
+updateBalance();
+refreshHome();
+loadMarketList();
+loadChart();
+</script>
+</body>
+</html>
+
