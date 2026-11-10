@@ -1,266 +1,280 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#f5f5f7"><title>AI Trading Lab · Paper Trading</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f5f7fb">
+<title>AI Trading Lab</title>
 <style>
-:root{--bg:#f5f5f7;--card:#fff;--ink:#1d1d1f;--muted:#777982;--line:#e7e7eb;--green:#138653;--red:#d74747;--blue:#1677d2;--amber:#9a6500}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
-.app{max-width:1180px;margin:auto;padding:20px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}.eyebrow{font-size:11px;color:var(--muted);letter-spacing:1.3px}.top h1{font-size:26px;margin:3px 0}.pill{padding:7px 11px;border-radius:99px;background:#e7f6ed;color:var(--green);font-size:12px;font-weight:700}
-.grid{display:grid;grid-template-columns:1.4fr .9fr;gap:15px}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:17px;margin-bottom:15px;box-shadow:0 2px 12px #00000006}.wide{grid-column:1/-1}.card h2{font-size:17px;margin:0 0 13px}.muted{color:var(--muted);font-size:12px}.balance{font-size:32px;font-weight:750;letter-spacing:-1px;margin:6px 0}.green{color:var(--green)}.red{color:var(--red)}
-.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.metric{background:#f7f7f9;border-radius:12px;padding:11px;min-width:0}.metric small{display:block;color:var(--muted);font-size:11px}.metric b{display:block;font-size:16px;margin-top:5px;overflow-wrap:anywhere}
-.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.controls label{font-size:12px;color:var(--muted)}select,input,button{font:inherit;border:1px solid var(--line);border-radius:10px;padding:10px;background:#fff;color:var(--ink)}button{cursor:pointer;font-weight:650}button.primary{background:#1d1d1f;color:white;border-color:#1d1d1f}button:disabled{opacity:.45;cursor:not-allowed}
-button.good{background:#e7f6ed;color:var(--green);border-color:#d1ebdc}button.warn{background:#fff5e5;color:var(--amber);border-color:#f0dfbd}
-.status{font-size:12px;border-radius:10px;background:#f5f5f7;padding:10px;margin-top:10px;line-height:1.5}.signal{font-size:21px;font-weight:800}.bar{height:8px;background:#eee;border-radius:9px;overflow:hidden}.bar>i{display:block;height:100%;background:var(--blue);width:0}
-table{width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap}th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line)}th{color:var(--muted);font-weight:600}
-.tablewrap{overflow:auto}#priceChart{width:100%;height:180px;display:block;background:#fbfbfc;border-radius:12px}
-.note{font-size:12px;line-height:1.55;color:var(--muted)}.notice{border-left:3px solid #d9a441;background:#fff8e9;padding:12px;border-radius:8px;font-size:12px;line-height:1.5}
-.filelabel{display:inline-block;padding:10px 12px;border:1px solid var(--line);border-radius:10px;cursor:pointer;font-weight:650;font-size:13px}input[type=file]{display:none}
-footer{text-align:center;color:var(--muted);font-size:11px;padding:10px}
-@media(max-width:800px){.grid{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}.wide{grid-column:auto}.app{padding:12px}.top h1{font-size:22px}}
+:root{--bg:#f4f6fb;--card:rgba(255,255,255,.78);--text:#171923;--muted:#737b8c;--line:rgba(120,130,150,.18);--blue:#3478f6;--green:#16a36a;--red:#e34e5c;--shadow:0 12px 35px #24304b12}
+.dark{--bg:#10131c;--card:rgba(30,35,48,.82);--text:#f5f7ff;--muted:#a1a9ba;--line:#ffffff18;--blue:#77a7ff;--green:#45d69a;--red:#ff7580;--shadow:0 12px 35px #0005}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;transition:.2s}
+.app{max-width:1120px;margin:auto;padding:20px}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+h1{font-size:25px;margin:0}h2{font-size:17px;margin:0 0 15px}
+.muted,small{color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;box-shadow:var(--shadow);backdrop-filter:blur(18px);margin-bottom:15px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.metric{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:13px;min-width:0}
+.metric small{display:block;margin-bottom:8px}
+.metric b{font-size:19px;overflow-wrap:anywhere}
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+button,select{border:1px solid var(--line);border-radius:12px;padding:11px 14px;background:var(--card);color:var(--text);font:inherit}
+button{cursor:pointer;font-weight:650}
+button.primary{background:var(--blue);color:white;border:0}
+button.good{background:var(--green);color:white;border:0}
+button.danger{background:var(--red);color:white;border:0}
+button:disabled{opacity:.45;cursor:not-allowed}
+.status{padding:12px;border-radius:12px;background:var(--bg);color:var(--muted);margin-top:12px}
+.signal{font-size:25px;font-weight:750}
+.green{color:var(--green)}.red{color:var(--red)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:11px 7px;border-bottom:1px solid var(--line)}
+.tablewrap{overflow-x:auto}
+canvas{width:100%;height:220px}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
+@media(max-width:650px){.app{padding:13px}.grid{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}h1{font-size:21px}}
 </style>
 </head>
-<body><main class="app">
-<header class="top"><div><div class="eyebrow">PERSONAL RESEARCH TERMINAL</div><h1>🧠 AI Trading Lab</h1><div class="muted">NSE · BSE · Crypto | Paper trading only</div></div><span class="pill">● SIMULATION MODE</span></header>
+<body>
+<div class="app">
+<header>
+  <div><small>PERSONAL RESEARCH TERMINAL</small><h1>🤖 AI Trading Lab</h1></div>
+  <div class="controls">
+    <select id="language" aria-label="Language">
+      <option value="en">English</option><option value="ta">தமிழ்</option>
+      <option value="tl">Tanglish</option><option value="hi">हिन्दी</option>
+      <option value="te">తెలుగు</option>
+    </select>
+    <button id="themeBtn">🌙 / ☀️</button>
+  </div>
+</header>
 
 <section class="card">
- <div class="muted">VIRTUAL ACCOUNT EQUITY</div><div class="balance" id="equity">$10,000.00</div>
- <div class="metrics">
-  <div class="metric"><small>Available cash</small><b id="cash">$10,000</b></div>
-  <div class="metric"><small>Open positions</small><b id="openCount">0 / 3</b></div>
-  <div class="metric"><small>Realized P&amp;L</small><b id="realized">$0.00</b></div>
-  <div class="metric"><small>Win rate</small><b id="winRate">—</b></div>
- </div>
+  <small id="accountLabel">VIRTUAL ACCOUNT EQUITY</small>
+  <div class="metrics" style="margin-top:12px">
+    <div class="metric"><small>Balance</small><b id="equity">$10,000.00</b></div>
+    <div class="metric"><small>Available cash</small><b id="cash">$10,000.00</b></div>
+    <div class="metric"><small>Open positions</small><b id="openCount">0</b></div>
+    <div class="metric"><small>Realized P&L</small><b id="realized">$0.00</b></div>
+  </div>
 </section>
 
 <div class="grid">
- <section class="card">
-  <h2>Market & strategy</h2>
-  <div class="controls">
-   <label>Market</label><select id="market"><option value="crypto">Crypto · Binance public data</option><option value="india">India · CSV OHLCV import</option></select>
-   <label>Symbol</label><select id="symbol"><option>BTCUSDT</option><option>ETHUSDT</option><option>BNBUSDT</option><option>SOLUSDT</option><option>XRPUSDT</option></select>
-   <label>Style</label><select id="style"><option value="intraday">Intraday · 15m</option><option value="swing">Swing · 4h</option></select>
-  </div>
-  <div class="controls" style="margin-top:12px">
-   <button class="primary" id="analyse">Analyse now</button>
-   <button class="good" id="auto">Start auto paper trading</button>
-   <button id="pause" disabled>Pause</button>
-   <button class="warn" id="reset">Reset $10,000</button>
-  </div>
-  <div class="status" id="feedStatus">Crypto data has not been fetched yet. Auto mode runs only while this page remains open.</div>
- </section>
-
- <section class="card">
-  <h2>AI decision</h2><div class="signal" id="decision">WAIT</div>
-  <div class="muted" id="reason">Waiting for market data.</div>
-  <div class="metrics" style="grid-template-columns:repeat(2,1fr);margin-top:12px">
-   <div class="metric"><small>Last price</small><b id="lastPrice">—</b></div>
-   <div class="metric"><small>RSI (14)</small><b id="rsi">—</b></div>
-   <div class="metric"><small>EMA 20 / 50</small><b id="emas">—</b></div>
-   <div class="metric"><small>Volume vs avg</small><b id="volume">—</b></div>
-  </div>
- </section>
-
- <section class="card wide">
-  <div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><h2>Price history</h2><span class="muted" id="chartLabel">No candles loaded</span></div>
-  <canvas id="priceChart" width="1000" height="220"></canvas>
- </section>
-
- <section class="card">
-  <h2>Risk controls</h2>
-  <div class="metrics" style="grid-template-columns:repeat(2,1fr)">
-   <div class="metric"><small>Risk per trade</small><b>0.5% ($50)</b></div>
-   <div class="metric"><small>Daily loss limit</small><b>2% ($200)</b></div>
-   <div class="metric"><small>Max open trades</small><b>3</b></div>
-   <div class="metric"><small>Leverage</small><b>OFF</b></div>
-  </div>
-  <p class="note">Position size is calculated from the entry-to-stop distance. Every simulated position has a stop-loss and 2R target. Long-only prototype; no leverage, averaging down, martingale or real orders.</p>
- </section>
-
- <section class="card">
-  <h2>India market data</h2>
-  <p class="note">NSE/BSE prices are not fetched automatically in this static GitHub Pages version. Upload a CSV containing Date, Open, High, Low, Close, Volume. CSV rows must be oldest to newest. This enables analysis and historical paper backtests on the uploaded data.</p>
-  <label class="filelabel" for="csvFile">Import OHLCV CSV</label><input id="csvFile" type="file" accept=".csv,text/csv">
-  <div class="status" id="csvStatus">No Indian-market CSV loaded.</div>
-  <button id="backtest" disabled>Run historical paper backtest</button>
- </section>
-
- <section class="card wide">
-  <h2>Open paper positions</h2><div class="tablewrap"><table><thead><tr><th>Market</th><th>Symbol</th><th>Entry</th><th>Stop</th><th>Target</th><th>Qty</th><th>Unrealized P&amp;L</th></tr></thead><tbody id="positions"><tr><td colspan="7" class="muted">No open positions</td></tr></tbody></table></div>
- </section>
- <section class="card wide">
-  <h2>Trade history</h2><div class="tablewrap"><table><thead><tr><th>Closed</th><th>Symbol</th><th>Entry</th><th>Exit</th><th>Qty</th><th>P&amp;L</th><th>Reason</th></tr></thead><tbody id="history"><tr><td colspan="7" class="muted">No completed paper trades</td></tr></tbody></table></div>
- </section>
- <section class="card">
-  <h2>Performance</h2><div class="metrics" style="grid-template-columns:repeat(2,1fr)">
-   <div class="metric"><small>Total trades</small><b id="totalTrades">0</b></div>
-   <div class="metric"><small>Profit factor</small><b id="profitFactor">—</b></div>
-   <div class="metric"><small>Max drawdown</small><b id="drawdown">0.00%</b></div>
-   <div class="metric"><small>Fees estimate</small><b id="fees">$0.00</b></div>
-  </div>
-  <p class="note">Results are local to this browser. They are not independently audited or evidence of future profitability.</p>
- </section>
- <section class="card">
-  <h2>Learning knowledge base</h2>
-  <p class="note">The included Markdown files explain candles, trend, indicators, risk and testing. This prototype is a transparent rule-based strategy, not a trained general AI model. Read the files before changing strategy rules.</p>
-  <a href="knowledge/01-candlesticks.md">Candlestick notes</a><br>
-  <a href="knowledge/02-trend-and-levels.md">Trend &amp; levels</a><br>
-  <a href="knowledge/03-indicators.md">Indicators</a><br>
-  <a href="knowledge/04-risk-management.md">Risk management</a><br>
-  <a href="knowledge/05-testing-and-bias.md">Testing &amp; bias</a>
- </section>
+<section class="card">
+<h2 id="marketTitle">Market & Strategy</h2>
+<div class="controls">
+  <label>Symbol
+    <select id="symbol">
+      <option value="BTCUSDT">BTC / USDT</option>
+      <option value="ETHUSDT">ETH / USDT</option>
+      <option value="BNBUSDT">BNB / USDT</option>
+      <option value="SOLUSDT">SOL / USDT</option>
+      <option value="XRPUSDT">XRP / USDT</option>
+      <option value="ADAUSDT">ADA / USDT</option>
+    </select>
+  </label>
+  <label>Style
+    <select id="style"><option value="15m">Intraday · 15m</option><option value="4h">Swing · 4h</option></select>
+  </label>
 </div>
-<div class="notice"><b>Safety boundary:</b> This app is a paper-trading experiment. It never connects to a broker or places real orders. Crypto prices come from Binance public market-data endpoints. Indian-market data must be imported by you. Auto trading works only while this browser tab is open and connected. A GitHub Pages site cannot run a persistent server-side bot. No profit is guaranteed; paper fills do not reproduce all spreads, slippage, outages, taxes or liquidity effects.</div>
-<footer>AI Trading Lab · Local browser simulation · $10,000 virtual starting balance</footer>
-</main>
+<div class="controls" style="margin-top:14px">
+  <button class="primary" id="analyze">Analyze market</button>
+  <button class="good" id="start">Start bot</button>
+  <button id="pause" disabled>Stop bot</button>
+</div>
+<div class="controls" style="margin-top:10px">
+  <button class="good" id="approve" disabled>Approve ONE paper BUY</button>
+  <button class="danger" id="cancel">Cancel approval</button>
+</div>
+<div class="status" id="botStatus">Bot stopped. Analyze the market to begin.</div>
+</section>
+
+<section class="card">
+<h2>AI decision</h2>
+<div class="signal" id="decision">WAIT</div>
+<p class="muted" id="reason">Waiting for market data.</p>
+<div class="metrics">
+ <div class="metric"><small>Last price</small><b id="price">—</b></div>
+ <div class="metric"><small>RSI (14)</small><b id="rsi">—</b></div>
+ <div class="metric"><small>EMA 20 / 50</small><b id="emas">—</b></div>
+ <div class="metric"><small>Volume</small><b id="volume">—</b></div>
+</div>
+</section>
+</div>
+
+<section class="card">
+<h2>Price history</h2>
+<canvas id="chart" width="1000" height="250"></canvas>
+<small class="muted">Candlestick data supplied by Binance public market API.</small>
+</section>
+
+<div class="grid">
+<section class="card">
+<h2>Risk controls</h2>
+<div class="metrics">
+ <div class="metric"><small>Risk per trade</small><b>0.5%</b></div>
+ <div class="metric"><small>Daily loss limit</small><b>2%</b></div>
+ <div class="metric"><small>Max open trades</small><b>3</b></div>
+ <div class="metric"><small>Leverage</small><b>None</b></div>
+</div>
+<p class="muted">Position size uses entry-to-stop distance. Stop-loss and take-profit are simulated.</p>
+</section>
+<section class="card">
+<h2>India market data</h2>
+<p class="muted">NSE/BSE live trading is not connected. This demo currently fetches crypto data only. Indian market CSV import and backtesting can be added separately.</p>
+</section>
+</div>
+
+<section class="card">
+<h2>Open positions</h2>
+<div class="tablewrap"><table><thead><tr><th>Symbol</th><th>Entry</th><th>Price</th><th>Stop</th><th>P&L</th></tr></thead><tbody id="positions"><tr><td colspan="5">No open positions</td></tr></tbody></table></div>
+</section>
+
+<section class="card">
+<h2>Trade history</h2>
+<div class="tablewrap"><table><thead><tr><th>Symbol</th><th>Entry</th><th>Exit</th><th>P&L</th><th>Result</th></tr></thead><tbody id="history"><tr><td colspan="5">No completed trades</td></tr></tbody></table></div>
+</section>
+<footer>AI Trading Lab · Paper trading only · No real money or broker connection</footer>
+</div>
+
 <script>
-const $=id=>document.getElementById(id), START=10000, RISK=.005, DAILY_LIMIT=.02, MAX_OPEN=3, FEE=.001;
-let account, candles=[], indiaCandles=[], timer=null, lastDecision=null, dayStartEquity=START, dayKey=new Date().toISOString().slice(0,10), feesTotal=0, lastEntryBar={};
-function fresh(){return {cash:START,positions:[],history:[],realized:0,peak:START,maxDD:0,fees:0}}
-function load(){try{account=JSON.parse(localStorage.getItem("atl-account"))||fresh()}catch{account=fresh()} render()}
-function save(){localStorage.setItem("atl-account",JSON.stringify(account));render()}
-function money(n){return "$"+Number(n||0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})}
-function fmt(n){return Number(n).toLocaleString("en-US",{maximumFractionDigits:4})}
-function symbol(){return $("market").value==="crypto"?$("symbol").value:($("symbol").value||"CSV-IMPORT")}
-function tf(){return $("style").value==="intraday"?"15m":"4h"}
-function setStatus(s){$("feedStatus").textContent=s}
-function sma(values,p){return values.map((_,i)=>i+1<p?null:values.slice(i-p+1,i+1).reduce((a,b)=>a+b,0)/p)}
-function ema(values,p){let out=[],k=2/(p+1),v=null;values.forEach(x=>{v=v===null?x:x*k+v*(1-k);out.push(v)});return out}
-function rsi(values,p=14){let out=Array(values.length).fill(null),g=0,l=0;for(let i=1;i<values.length;i++){let d=values[i]-values[i-1];if(i<=p){g+=Math.max(d,0);l+=Math.max(-d,0);if(i===p)out[i]=l===0?100:100-100/(1+g/l)}else{g=(g*(p-1)+Math.max(d,0))/p;l=(l*(p-1)+Math.max(-d,0))/p;out[i]=l===0?100:100-100/(1+g/l)}}return out}
-function atr(cs,p=14){let tr=cs.map((c,i)=>i===0?c.high-c.low:Math.max(c.high-c.low,Math.abs(c.high-cs[i-1].close),Math.abs(c.low-cs[i-1].close)));return sma(tr,p)}
-function analyse(cs){
- if(cs.length<60)return {action:"WAIT",why:"Need at least 60 candles for EMA 50 and confirmation.",rsi:null};
- const closes=cs.map(c=>c.close), e20=ema(closes,20),e50=ema(closes,50),rv=rsi(closes),av=atr(cs),volAvg=sma(cs.map(c=>c.volume||0),20),i=cs.length-1,c=cs[i],prev=cs[i-1];
- const bullish=c.close>c.open&&c.close>prev.high, bearish=c.close<c.open&&c.close<prev.low;
- const volOk=(volAvg[i]||0)>0&&c.volume>volAvg[i]*1.2;
- const trend=e20[i]>e50[i]&&c.close>e20[i], r=rv[i], range=av[i]||c.close*.01;
- let score=0, evidence=[];
- if(trend){score+=1;evidence.push("EMA20 above EMA50; close above EMA20")}
- if(bullish){score+=1;evidence.push("bullish candle close above prior high")}
- if(volOk){score+=1;evidence.push("volume above 1.2× 20-bar average")}
- if(r>=50&&r<=68){score+=1;evidence.push("RSI in 50–68 momentum zone")}
- if(e20[i]<e50[i])evidence.push("EMA trend is not bullish");
- if(r>70)evidence.push("RSI overbought filter");
- if(!volOk)evidence.push("volume confirmation missing");
- const action=score>=3&&r<=68?"BUY":"WAIT";
- return {action,score,why:evidence.join("; ")||"No qualifying setup",price:c.close,rsi:r,e20:e20[i],e50:e50[i],atr:range,volumeRatio:volAvg[i]?c.volume/volAvg[i]:null,time:c.time};
-}
-async function fetchCrypto(){
- const sym=$("symbol").value, interval=tf(), url=`https://api.binance.com/api/v3/klines?symbol=${encodeURIComponent(sym)}&interval=${interval}&limit=250`;
- setStatus("Fetching public Binance candles…");
- const res=await fetch(url);if(!res.ok)throw new Error("Market data request failed: "+res.status);
- const data=await res.json();
- candles=data.slice(0,-1).map(k=>({time:k[0],open:+k[1],high:+k[2],low:+k[3],close:+k[4],volume:+k[5]}));
- setStatus(`Loaded ${candles.length} ${interval} candles from Binance public market data. Last candle may still be forming.`);
-}
-function currentData(){return $("market").value==="crypto"?candles:indiaCandles}
-function drawChart(cs){
- const cv=$("priceChart"),ctx=cv.getContext("2d"),w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
- if(!cs.length){ctx.fillStyle="#888";ctx.fillText("Load market data to view price history",20,35);return}
- const a=cs.slice(-100),lo=Math.min(...a.map(x=>x.low)),hi=Math.max(...a.map(x=>x.high)),pad=18;
- ctx.strokeStyle="#e8e8ed";ctx.lineWidth=1;for(let j=1;j<4;j++){let y=pad+(h-2*pad)*j/4;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke()}
- ctx.strokeStyle="#168653";ctx.lineWidth=2;ctx.beginPath();
- a.forEach((c,i)=>{let x=pad+i*(w-2*pad)/Math.max(1,a.length-1),y=h-pad-(c.close-lo)/(hi-lo||1)*(h-2*pad);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)});ctx.stroke();
- ctx.fillStyle="#666";ctx.font="12px Arial";ctx.fillText("High "+fmt(hi),10,14);ctx.fillText("Low "+fmt(lo),10,h-5);
- $("chartLabel").textContent=a.length+" recent candles · "+($("market").value==="crypto"?"Binance":"Imported CSV");
-}
-function renderAnalysis(d){
- lastDecision=d;$("decision").textContent=d.action;$("decision").className="signal "+(d.action==="BUY"?"green":"");
- $("reason").textContent=d.why;$("lastPrice").textContent=d.price?fmt(d.price):"—";$("rsi").textContent=d.rsi?d.rsi.toFixed(1):"—";
- $("emas").textContent=d.e20?fmt(d.e20)+" / "+fmt(d.e50):"—";$("volume").textContent=d.volumeRatio?d.volumeRatio.toFixed(2)+"×":"—";
-}
-function equity(){return account.cash+account.positions.reduce((s,p)=>s+p.qty*(p.last||p.entry),0)}
-function render(){
- let eq=equity();$("equity").textContent=money(eq);$("cash").textContent=money(account.cash);
- $("openCount").textContent=account.positions.length+" / "+MAX_OPEN;$("realized").textContent=money(account.realized);
- $("realized").className=account.realized>=0?"green":"red";
- const wins=account.history.filter(t=>t.pnl>0).length;
- $("winRate").textContent=account.history.length?(100*wins/account.history.length).toFixed(1)+"%":"—";
- $("totalTrades").textContent=account.history.length;$("fees").textContent=money(account.fees);
- const gp=account.history.filter(t=>t.pnl>0).reduce((s,t)=>s+t.pnl,0),gl=Math.abs(account.history.filter(t=>t.pnl<0).reduce((s,t)=>s+t.pnl,0));
- $("profitFactor").textContent=gl? (gp/gl).toFixed(2):gp?"∞":"—";$("drawdown").textContent=(account.maxDD*100).toFixed(2)+"%";
- $("positions").innerHTML=account.positions.length?account.positions.map(p=>`<tr><td>${p.market}</td><td>${p.symbol}</td><td>${fmt(p.entry)}</td><td>${fmt(p.stop)}</td><td>${fmt(p.target)}</td><td>${fmt(p.qty)}</td><td class="${(p.qty*((p.last||p.entry)-p.entry))>=0?'green':'red'}">${money(p.qty*((p.last||p.entry)-p.entry))}</td></tr>`).join(""):'<tr><td colspan="7" class="muted">No open positions</td></tr>';
- $("history").innerHTML=account.history.slice().reverse().slice(0,50).map(t=>`<tr><td>${new Date(t.closed).toLocaleString()}</td><td>${t.symbol}</td><td>${fmt(t.entry)}</td><td>${fmt(t.exit)}</td><td>${fmt(t.qty)}</td><td class="${t.pnl>=0?'green':'red'}">${money(t.pnl)}</td><td>${t.reason}</td></tr>`).join("")||'<tr><td colspan="7" class="muted">No completed paper trades</td></tr>';
-}
-function closePosition(p,price,reason){
- const gross=p.qty*(price-p.entry),fee=(p.qty*p.entry+p.qty*price)*FEE,pnl=gross-fee;
- account.cash+=p.qty*price-fee;account.realized+=pnl;account.fees+=fee;
- account.history.push({symbol:p.symbol,entry:p.entry,exit:price,qty:p.qty,pnl,reason,closed:Date.now()});
- account.positions=account.positions.filter(x=>x.id!==p.id);
-}
-function markAndManage(cs){
- if(!cs.length)return;
- const c=cs[cs.length-1],s=symbol();
- account.positions.filter(p=>p.symbol===s).forEach(p=>{
-  p.last=c.close;
-  if(c.low<=p.stop)closePosition(p,p.stop,"Stop-loss");
-  else if(c.high>=p.target)closePosition(p,p.target,"Target 2R");
- });
- const eq=equity();account.peak=Math.max(account.peak,eq);account.maxDD=Math.max(account.maxDD,(account.peak-eq)/account.peak);
-}
-function maybeOpen(d,cs){
- if(d.action!=="BUY")return "No entry: filters not satisfied.";
- const today=new Date().toISOString().slice(0,10);
- if(today!==dayKey){dayKey=today;dayStartEquity=equity()}
- if(dayStartEquity-equity()>=START*DAILY_LIMIT)return "Daily loss limit reached; new entries blocked.";
- if(account.positions.length>=MAX_OPEN)return "Maximum open positions reached.";
- if(account.positions.some(p=>p.symbol===symbol()))return "Position already open for this symbol.";
- const entry=d.price,stop=entry-1.5*d.atr,riskCash=Math.min(START*RISK,account.cash*.99),qty=riskCash/(entry-stop);
- if(!Number.isFinite(qty)||qty<=0||qty*entry>account.cash)return "Risk/available-cash check failed.";
- const fee=qty*entry*FEE;if(qty*entry+fee>account.cash)return "Insufficient virtual cash after estimated fee.";
- account.cash-=qty*entry+fee;account.fees+=fee;
- account.positions.push({id:crypto.randomUUID(),market:$("market").value,symbol:symbol(),entry,stop,target:entry+2*(entry-stop),qty,last:entry,opened:Date.now()});
- return `Paper BUY opened: ${fmt(qty)} units at ${fmt(entry)}; stop ${fmt(stop)}; target ${fmt(entry+2*(entry-stop))}.`;
-}
-async function runAnalysis(){
- try{
-  if($("market").value==="crypto")await fetchCrypto();
-  const cs=currentData();if(cs.length<60)throw new Error("Need at least 60 candles. Import a larger CSV or select a supported crypto symbol.");
-  markAndManage(cs);const d=analyse(cs);renderAnalysis(d);drawChart(cs);
-  const msg=$("auto").dataset.running==="1"?maybeOpen(d,cs):"Analysis only; automatic execution is paused.";
-  setStatus(msg+" Data: "+new Date().toLocaleTimeString());
-  save();
- }catch(e){setStatus(e.message);$("decision").textContent="WAIT";$("reason").textContent=e.message}
-}
-function startAuto(){if(timer)return;if($("market").value!=="crypto"){setStatus("Automatic live polling is currently enabled only for Binance crypto. For NSE/BSE, import OHLCV CSV and run the historical paper backtest.");return;} $("auto").dataset.running="1";$("auto").textContent="Auto trading ON";$("auto").disabled=true;$("pause").disabled=false;runAnalysis();timer=setInterval(runAnalysis,60000);setStatus("Auto paper trading ON. This tab must remain open. Refreshing/closing stops automation.");}
-function pauseAuto(){if(timer)clearInterval(timer);timer=null;$("auto").dataset.running="0";$("auto").textContent="Start auto paper trading";$("auto").disabled=false;$("pause").disabled=true;setStatus("Auto mode paused. Existing paper positions remain in this browser.");}
-$("analyse").onclick=runAnalysis;$("auto").onclick=startAuto;$("pause").onclick=pauseAuto;
-$("reset").onclick=()=>{if(confirm("Reset virtual account and erase its trade history?")){pauseAuto();account=fresh();save();setStatus("Virtual account reset to $10,000.")}};
-$("market").onchange=()=>{pauseAuto();const crypto=$("market").value==="crypto";$("symbol").innerHTML=crypto?["BTCUSDT","ETHUSDT","BNBUSDT","SOLUSDT","XRPUSDT"].map(x=>`<option>${x}</option>`).join(""):'<option>CSV-IMPORT</option>';$("csvStatus").textContent=crypto?"Crypto public data selected.":"Import a valid Indian OHLCV CSV to analyse NSE/BSE instruments.";candles=[];drawChart([])};
-$("style").onchange=()=>{if($("market").value==="crypto")runAnalysis()};
-$("symbol").onchange=()=>{if($("market").value==="crypto")runAnalysis()};
-$("csvFile").onchange=async e=>{
- const f=e.target.files[0];if(!f)return;
- try{
-  const rows=(await f.text()).trim().split(/\r?\n/).map(x=>x.split(",").map(y=>y.trim()));
-  const header=rows.shift().map(x=>x.toLowerCase());
-  const ix=k=>header.indexOf(k);
-  for(const k of ["open","high","low","close","volume"])if(ix(k)<0)throw new Error("CSV needs Open, High, Low, Close, Volume columns.");
-  indiaCandles=rows.map(r=>({time:r[ix("date")]||r[ix("datetime")]||"",open:+r[ix("open")],high:+r[ix("high")],low:+r[ix("low")],close:+r[ix("close")],volume:+r[ix("volume")]})).filter(c=>[c.open,c.high,c.low,c.close,c.volume].every(Number.isFinite));
-  if(indiaCandles.length<60)throw new Error("CSV must contain at least 60 valid candle rows.");
-  $("market").value="india";$("symbol").innerHTML='<option>CSV-IMPORT</option>';$("csvStatus").textContent=`Loaded ${indiaCandles.length} rows. Data source: your uploaded file.`;
-  $("backtest").disabled=false;drawChart(indiaCandles);renderAnalysis(analyse(indiaCandles));
- }catch(err){$("csvStatus").textContent=err.message}
+const $=id=>document.getElementById(id);
+let cash=10000,realized=0,positions=[],history=[];
+let running=false,approval=false,lastData=null,timer=null,dayStart=10000;
+const translations={
+en:{analyze:"Analyze market",start:"Start bot",stop:"Stop bot",approve:"Approve ONE paper BUY",cancel:"Cancel approval",wait:"WAIT",status:"Bot stopped. Analyze the market to begin."},
+ta:{analyze:"சந்தையை ஆய்வு செய்",start:"Bot தொடங்கு",stop:"Bot நிறுத்து",approve:"ஒரு Paper BUY அனுமதி",cancel:"அனுமதியை ரத்து செய்",wait:"காத்திரு",status:"Bot நிறுத்தப்பட்டுள்ளது. முதலில் சந்தையை ஆய்வு செய்யவும்."},
+tl:{analyze:"Market analyze pannu",start:"Bot start pannu",stop:"Bot stop pannu",approve:"Oru Paper BUY approve pannu",cancel:"Approval cancel pannu",wait:"WAIT",status:"Bot stopped. Mudhal market analyze pannunga."},
+hi:{analyze:"बाज़ार का विश्लेषण",start:"बॉट शुरू करें",stop:"बॉट रोकें",approve:"एक Paper BUY की अनुमति दें",cancel:"अनुमति रद्द करें",wait:"प्रतीक्षा",status:"बॉट बंद है। पहले बाज़ार का विश्लेषण करें।"},
+te:{analyze:"మార్కెట్ విశ్లేషించండి",start:"బాట్ ప్రారంభించండి",stop:"బాట్ ఆపండి",approve:"ఒక Paper BUY అనుమతించండి",cancel:"అనుమతి రద్దు చేయండి",wait:"వేచి ఉండండి",status:"బాట్ ఆగి ఉంది. ముందుగా మార్కెట్‌ను విశ్లేషించండి."}
 };
-$("backtest").onclick=()=>{
- const cs=indiaCandles;if(cs.length<60)return;
- let sim=fresh(),trades=[];
- for(let i=60;i<cs.length;i++){
-  const slice=cs.slice(0,i+1),d=analyse(slice),c=cs[i];
-  for(const p of [...sim.positions]){
-   if(c.low<=p.stop||c.high>=p.target){
-    const exit=c.low<=p.stop?p.stop:p.target,pnl=p.qty*(exit-p.entry)-(p.qty*p.entry+ p.qty*exit)*FEE;
-    sim.cash+=p.qty*exit-p.qty*exit*FEE;sim.realized+=pnl;sim.history.push({symbol:"CSV-IMPORT",entry:p.entry,exit,qty:p.qty,pnl,reason:exit===p.stop?"Stop-loss":"Target 2R",closed:i});sim.positions=sim.positions.filter(x=>x.id!==p.id);
-   }
-  }
-  if(d.action==="BUY"&&sim.positions.length<MAX_OPEN&&sim.cash>0&&!sim.positions.length){
-   const stop=d.price-1.5*d.atr,risk=Math.min(START*RISK,sim.cash*.99),qty=risk/(d.price-stop),cost=qty*d.price*(1+FEE);
-   if(cost<sim.cash){sim.cash-=cost;sim.positions.push({id:"bt"+i,symbol:"CSV-IMPORT",entry:d.price,stop,target:d.price+2*(d.price-stop),qty,last:d.price})}
-  }
+function translate(){
+ let t=translations[$("language").value];
+ $("analyze").textContent=t.analyze;$("start").textContent=t.start;
+ $("pause").textContent=t.stop;$("approve").textContent=t.approve;
+ $("cancel").textContent=t.cancel;
+}
+$("language").onchange=translate;
+$("themeBtn").onclick=()=>document.body.classList.toggle("dark");
+$("symbol").onchange=()=>analyze();
+$("style").onchange=()=>analyze();
+
+function ema(values,period){
+ let k=2/(period+1),v=values[0];
+ for(let i=1;i<values.length;i++)v=values[i]*k+v*(1-k);
+ return v;
+}
+function rsi(values){
+ let gains=0,losses=0;
+ for(let i=values.length-15;i<values.length-1;i++){
+  let d=values[i+1]-values[i];if(d>0)gains+=d;else losses-=d;
  }
- const last=cs[cs.length-1];sim.positions.forEach(p=>{const pnl=p.qty*(last.close-p.entry)-(p.qty*p.entry+p.qty*last.close)*FEE;sim.history.push({symbol:"CSV-IMPORT",entry:p.entry,exit:last.close,qty:p.qty,pnl,reason:"End of data (marked)",closed:Date.now()});sim.cash+=p.qty*last.close-p.qty*last.close*FEE});
- sim.positions=[];sim.realized=sim.history.reduce((s,t)=>s+t.pnl,0);account=sim;save();
- $("csvStatus").textContent=`Backtest complete: ${sim.history.length} closed trades. Historical simulation only; no future/live orders.`;
+ let avgG=gains/14,avgL=losses/14;
+ return avgL===0?100:100-(100/(1+avgG/avgL));
+}
+async function analyze(){
+ $("botStatus").textContent="Fetching public market data...";
+ try{
+  let symbol=$("symbol").value,interval=$("style").value;
+  let url=`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=100`;
+  let response=await fetch(url);
+  if(!response.ok)throw Error("Market API unavailable");
+  let raw=await response.json();
+  let candles=raw.map(x=>({time:x[0],open:+x[1],high:+x[2],low:+x[3],close:+x[4],volume:+x[5]}));
+  let closes=candles.map(x=>x.close),last=candles.at(-1);
+  let e20=ema(closes.slice(-60),20),e50=ema(closes,50),rv=rsi(closes);
+  let avgVol=candles.slice(-21,-1).reduce((a,x)=>a+x.volume,0)/20;
+  let breakout=last.close>Math.max(...candles.slice(-21,-1).map(x=>x.high));
+  let volOK=last.volume>avgVol;
+  let buy=e20>e50&&rv>50&&rv<70&&breakout&&volOK;
+  let sell=e20<e50||rv>75;
+  let signal=buy?"BUY":sell?"SELL":"WAIT";
+  lastData={symbol,price:last.close,signal,ema20:e20,ema50:e50,rsi:rv,volume:last.volume,candles};
+  $("decision").textContent=signal;
+  $("decision").className="signal "+(buy?"green":sell?"red":"");
+  $("reason").textContent=buy?"Trend + breakout + volume confirmation.":sell?"Bearish trend or RSI warning.":"No complete entry setup.";
+  $("price").textContent=last.close.toLocaleString("en-US",{maximumFractionDigits:4});
+  $("rsi").textContent=rv.toFixed(1);
+  $("emas").textContent=e20.toFixed(2)+" / "+e50.toFixed(2);
+  $("volume").textContent=last.volume.toFixed(2);
+  drawChart(candles);
+  $("botStatus").textContent="Data updated: "+new Date().toLocaleTimeString();
+  managePositions(last.close);
+  if(running&&approval&&buy&&positions.length<3)openPaperTrade(last.close);
+  render();
+ }catch(e){$("botStatus").textContent="Data error: "+e.message+". Try again later.";}
+}
+function drawChart(candles){
+ let c=$("chart"),ctx=c.getContext("2d"),w=c.width,h=c.height;
+ ctx.clearRect(0,0,w,h);
+ let data=candles.slice(-50),min=Math.min(...data.map(x=>x.low)),max=Math.max(...data.map(x=>x.high));
+ let scale=(h-20)/(max-min||1);
+ data.forEach((d,i)=>{
+  let x=10+i*(w-20)/data.length,up=d.close>=d.open;
+  ctx.strokeStyle=up?"#16a36a":"#e34e5c";
+  ctx.fillStyle=ctx.strokeStyle;
+  let y1=h-10-(d.high-min)*scale,y2=h-10-(d.low-min)*scale;
+  let yo=h-10-(Math.max(d.open,d.close)-min)*scale;
+  let yc=h-10-(Math.min(d.open,d.close)-min)*scale;
+  ctx.beginPath();ctx.moveTo(x,y1);ctx.lineTo(x,y2);ctx.stroke();
+  ctx.fillRect(x-3,yo,6,Math.max(2,yc-yo));
+ });
+}
+function openPaperTrade(price){
+ approval=false;$("approve").disabled=true;
+ let risk=cash*.005,stop=price*.99,qty=risk/(price-stop);
+ let p={symbol:lastData.symbol,entry:price,stop,target:price*1.02,qty,price};
+ cash-=price*qty;
+ positions.push(p);
+ $("botStatus").textContent="Approved paper BUY executed. Approval consumed.";
+}
+function managePositions(price){
+ positions.forEach(p=>{
+  if(p.symbol!==lastData.symbol)return;
+  p.price=price;
+  if(price<=p.stop||price>=p.target){
+   let pnl=(price-p.entry)*p.qty;
+   cash+=price*p.qty;realized+=pnl;
+   history.unshift({...p,exit:price,pnl});
+   positions=positions.filter(x=>x!==p);
+  }
+ });
+}
+function render(){
+ $("cash").textContent="$"+cash.toFixed(2);
+ $("equity").textContent="$"+(cash+positions.reduce((a,p)=>a+p.price*p.qty,0)).toFixed(2);
+ $("realized").textContent="$"+realized.toFixed(2);
+ $("openCount").textContent=positions.length;
+ $("positions").innerHTML=positions.length?positions.map(p=>`<tr><td>${p.symbol}</td><td>${p.entry.toFixed(2)}</td><td>${p.price.toFixed(2)}</td><td>${p.stop.toFixed(2)}</td><td>${((p.price-p.entry)*p.qty).toFixed(2)}</td></tr>`).join(""):'<tr><td colspan="5">No open positions</td></tr>';
+ $("history").innerHTML=history.length?history.map(p=>`<tr><td>${p.symbol}</td><td>${p.entry.toFixed(2)}</td><td>${p.exit.toFixed(2)}</td><td>${p.pnl.toFixed(2)}</td><td>${p.pnl>=0?"Win":"Loss"}</td></tr>`).join(""):'<tr><td colspan="5">No completed trades</td></tr>';
+}
+$("analyze").onclick=analyze;
+$("start").onclick=()=>{
+ running=true;$("start").disabled=true;$("pause").disabled=false;
+ $("botStatus").textContent="Bot running in analysis mode. Approve a single BUY when ready.";
+ analyze();timer=setInterval(analyze,30000);
 };
-load();drawChart([]);
-</script></body></html>
+$("pause").onclick=()=>{
+ running=false;approval=false;clearInterval(timer);
+ $("start").disabled=false;$("pause").disabled=true;$("approve").disabled=true;
+ $("botStatus").textContent="Bot stopped. Pending approval cancelled.";
+};
+$("approve").onclick=()=>{
+ if(!running){$("botStatus").textContent="Start the bot first.";return;}
+ approval=true;$("approve").disabled=true;
+ $("botStatus").textContent="One-time BUY approval armed. It will be used only if a BUY signal appears.";
+ if(lastData&&lastData.signal==="BUY")openPaperTrade(lastData.price);
+};
+$("cancel").onclick=()=>{
+ approval=false;$("approve").disabled=true;
+ $("botStatus").textContent="Pending approval cancelled.";
+};
+$("start").disabled=false;
+translate();render();analyze();
+</script>
+</body>
+</html>
